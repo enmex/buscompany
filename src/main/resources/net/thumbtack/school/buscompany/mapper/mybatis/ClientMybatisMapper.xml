@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.ClientMybatisMapper">
+
+    <resultMap id="resultClient" type="net.thumbtack.school.buscompany.model.Client">
+        <id property="id" column="id_client"/>
+        <result property="firstName" column="client_firstname"/>
+        <result property="lastName" column="client_lastname"/>
+        <result property="patronymic" column="client_patronymic"/>
+        <result property="login" column="client_login"/>
+        <result property="password" column="client_password"/>
+        <result property="email" column="client_email"/>
+        <result property="phone" column="client_phone"/>
+    </resultMap>
+
+    <select id="getByLogin" resultMap="resultClient">
+        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
+                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+        FROM `user` JOIN `client` ON `user`.id = `client`.id_user
+        WHERE login = #{login}
+    </select>
+
+    <select id="getBySession" resultMap="resultClient">
+        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
+                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+        FROM `user` JOIN `client` ON `user`.id = `client`.id_user JOIN `session` ON `session`.id_user = `user`.id
+        WHERE uuid = #{uuid}
+    </select>
+
+    <select id="getAllClients" resultMap="resultClient">
+        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
+                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+        FROM `user` JOIN `client` ON `user`.id = `client`.id_user
+    </select>
+</mapper>

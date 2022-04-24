@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.AdminMybatisMapper">
+
+    <resultMap id="resultAdmin" type="net.thumbtack.school.buscompany.model.Admin">
+        <id property="id" column="id_admin"/>
+        <result property="firstName" column="admin_firstname"/>
+        <result property="lastName" column="admin_lastname"/>
+        <result property="patronymic" column="admin_patronymic"/>
+        <result property="login" column="admin_login"/>
+        <result property="password" column="admin_password"/>
+        <result property="position" column="admin_position"/>
+    </resultMap>
+
+    <select id="getByLogin" resultMap="resultAdmin">
+        SELECT `user`.id as id_admin, firstname as admin_firstname, lastname as admin_lastname, patronymic as admin_patronymic,
+                login as admin_login, `password` as admin_password, position as admin_position
+        FROM `user` JOIN `admin` ON `user`.id = `admin`.id_user
+        WHERE login = #{login}
+    </select>
+
+    <select id="getBySession" resultMap="resultAdmin">
+        SELECT `user`.id as id_admin, firstname as admin_firstname, lastname as admin_lastname, patronymic as admin_patronymic,
+                login as admin_login, `password` as admin_password, position as admin_position
+        FROM `user` JOIN `admin` ON `user`.id = `admin`.id_user JOIN `session` ON `session`.id_user = `user`.id
+        WHERE uuid = #{uuid}
+    </select>
+
+</mapper>
