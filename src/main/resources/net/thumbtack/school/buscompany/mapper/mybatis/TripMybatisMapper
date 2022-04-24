@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.TripMybatisMapper">
+    <resultMap id="resultSchedule" type="net.thumbtack.school.buscompany.model.Schedule">
+        <result property="fromDate" column="from_date_schedule"/>
+        <result property="toDate" column="to_date_schedule"/>
+        <result property="period" column="period_schedule"/>
+    </resultMap>
+
+    <resultMap id="resultScheduleTrip" type="net.thumbtack.school.buscompany.model.ScheduleTrip">
+        <id property="id" column="id_trip"/>
+        <result property="busName" column="bus_name_trip"/>
+        <result property="fromStation" column="from_station_trip"/>
+        <result property="toStation" column="to_station_trip"/>
+        <result property="start" column="start_trip"/>
+        <result property="duration" column="duration_trip"/>
+        <result property="price" column="price_trip"/>
+        <result property="approved" column="approved_trip"/>
+        <association property="schedule" column="id_schedule_trip"/>
+    </resultMap>
+
+    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.DatesTrip">
+        <id property="id" column="id_trip"/>
+        <result property="busName" column="bus_name_trip"/>
+        <result property="fromStation" column="from_station_trip"/>
+        <result property="toStation" column="to_station_trip"/>
+        <result property="start" column="start_trip"/>
+        <result property="duration" column="duration_trip"/>
+        <result property="price" column="price_trip"/>
+        <result property="approved" column="approved_trip"/>
+        <collection property="dates" column="date_trip" javaType="java.util.List" ofType="java.lang.String"
+    </resultMap>
+
+    <select id="getScheduleTripById" resultMap="resultScheduleTrip">
+        SELECT trip.id as id_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+                trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
+                trip.price as price_trip, trip.approved as approved_trip, trip_schedule.from_date as from_date_schedule,
+                trip_schedule.to_date as to_date_schedule, trip_schedule.period as period_schedule
+        FROM trip JOIN trip_schedule ON trip.id = trip_schedule.id_trip
+        WHERE trip.id = #{tripId}
+    </select>
+
+    <select id="getDatesTripById" resultMap="resultDatesTrip">
+        SELECT trip.id as id_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+                trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
+                trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        WHERE trip.id = #{tripId}
+    </select>
+
+</mapper>
