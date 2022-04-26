@@ -6,7 +6,7 @@ import java.lang.annotation.*;
 
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(value = {ElementType.FIELD, ElementType.PARAMETER})
 @Constraint(
         validatedBy = {DateValidator.class, DateListValidator.class}
 )

@@ -6,7 +6,7 @@ import lombok.Getter;
 public class RegisterAdminDtoResponse extends RegisterUserDtoResponse{
     private String position;
 
-    public RegisterAdminDtoResponse(String id, String firstName, String lastName,
+    public RegisterAdminDtoResponse(int id, String firstName, String lastName,
                                     String patronymic, String userType, String position) {
         super(id, firstName, lastName, patronymic, userType);
         this.position = position;

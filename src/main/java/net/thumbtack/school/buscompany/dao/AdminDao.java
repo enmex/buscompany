@@ -3,7 +3,7 @@ package net.thumbtack.school.buscompany.dao;
 import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import net.thumbtack.school.buscompany.model.Bus;
 import net.thumbtack.school.buscompany.model.Client;
-import net.thumbtack.school.buscompany.model.ScheduleTrip;
+import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Trip;
 import org.springframework.stereotype.Component;
 
@@ -17,9 +17,9 @@ public interface AdminDao {
     boolean containsBus(String busName) throws BusCompanyException;
     void registerTrip(Trip trip) throws BusCompanyException;
 
-    Bus getBus(String busName) throws BusCompanyException;
+    void updateTrip(Trip Trip) throws BusCompanyException;
 
-    Trip getTripById(String tripId) throws BusCompanyException;
+    void deleteTrip(Trip trip);
 
-    void updateTrip(Trip Trip);
+    void approveTrip(Trip trip);
 }

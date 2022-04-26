@@ -4,6 +4,7 @@ import net.thumbtack.school.buscompany.model.Schedule;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.temporal.*;
@@ -11,9 +12,6 @@ import java.util.*;
 
 @Component
 public class DateService {
-
-    @Value("${buscompany.displayed_dates_number}")
-    private int datesAmount;
 
     private Map<String, DayOfWeek> dayOfWeekMap;
 
@@ -29,16 +27,17 @@ public class DateService {
     }
 
     public List<String> createDates(Schedule schedule){
-        List<String> dates = new ArrayList<>(datesAmount);
+        List<String> dates = new ArrayList<>();
 
         if (schedule.getPeriod().equals("daily")) {
             Date currentDate = schedule.getFromDate();
             dates.add(formatDate(currentDate));
 
-            for(int i = 1; i < datesAmount && !datesEqual(dateAfter(currentDate), schedule.getToDate()); i++){
+            while(isAfter(dateAfter(currentDate), schedule.getToDate())){
                 currentDate = dateAfter(currentDate);
                 dates.add(formatDate(currentDate));
             }
+            dates.add(formatDate(schedule.getToDate()));
 
             return dates;
         }
@@ -53,7 +52,8 @@ public class DateService {
                 currentDate = dateAfter(currentDate);
             }
 
-            for(int i = 1; i < datesAmount && !datesEqual(dateAfter(currentDate), schedule.getToDate()); i++){
+            while(isAfter(dateAfter(currentDate), schedule.getToDate())){
+              //  if(dateAfter(currentDate).toInstant().get(ChronoField.DAY_OF_MONTH))
                 currentDate = dateAfter(dateAfter(currentDate));
                 dates.add(formatDate(currentDate));
             }
@@ -66,7 +66,7 @@ public class DateService {
         if(isDaysOfWeek(daysOfPeriod)) {
             Date currentDate = schedule.getFromDate();
 
-            for (int i = 0; i < datesAmount && schedule.getToDate().toInstant().isAfter(currentDate.toInstant()); i += daysOfPeriod.length) {
+            while(schedule.getToDate().toInstant().isAfter(currentDate.toInstant())) {
                 for(String day : daysOfPeriod){
                     DayOfWeek dayOfWeek = dayOfWeekMap.get(day);
                     currentDate = nextDayOfWeekFrom(currentDate, dayOfWeek);
@@ -77,8 +77,8 @@ public class DateService {
         }
         else{
             Date currentDate = schedule.getFromDate();
-            int addedDays = 0;
-            for(int i = 0; i < datesAmount; i+= addedDays) {
+            int addedDays;
+            for(int i = 0; i < 1000; i+= addedDays) {
                 addedDays = 0;
                 for (String day : daysOfPeriod) {
                     int dayOfMonth = Integer.parseInt(day);
@@ -114,19 +114,13 @@ public class DateService {
         return currentDay <= day;
     }
 
-    private boolean isDayOfMonth(Date date, int day){
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int lastDay = localDate.with(TemporalAdjusters.lastDayOfMonth()).getDayOfMonth();
-        return lastDay >= day;
+    private boolean isAfter(Date currentDate, Date date){
+        return date.toInstant().isAfter(currentDate.toInstant());
     }
 
     private boolean isOddDay(Date date){
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return localDate.getDayOfMonth() % 2 == 1;
-    }
-
-    private boolean datesEqual(Date a, Date b){
-        return a.compareTo(b) == 0;
     }
 
     private Date nextDayOfWeekFrom(Date date, DayOfWeek day){
@@ -148,21 +142,15 @@ public class DateService {
         return Date.from(date.toInstant().plus(day - currentDay, ChronoUnit.DAYS));
     }
 
-    private Date nextMonth(Date date){
-        Calendar cal = GregorianCalendar.getInstance();
-        return null;
-    }
-
-    private int getDayOfWeek(Date date){
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return localDate.getDayOfWeek().getValue();
-    }
-
     public List<String> createDates(List<Date> dates) {
         List<String> datesString = new ArrayList<>();
         for(Date date : dates){
             datesString.add(formatDate(date));
         }
         return datesString;
+    }
+
+    public Date parseDate(String date) throws ParseException {
+        return new SimpleDateFormat("yyyy-MM-dd").parse(date);
     }
 }

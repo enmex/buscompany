@@ -31,4 +31,8 @@ public class BaseDaoImpl implements BaseDao {
     protected TripMybatisMapper getTripMapper(SqlSession session){
         return session.getMapper(TripMybatisMapper.class);
     }
+
+    protected OrderMybatisMapper getTicketMapper(SqlSession session){
+        return session.getMapper(OrderMybatisMapper.class);
+    }
 }

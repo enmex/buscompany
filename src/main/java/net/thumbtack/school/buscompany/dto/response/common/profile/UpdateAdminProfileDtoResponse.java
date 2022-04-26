@@ -1,7 +1,11 @@
 package net.thumbtack.school.buscompany.dto.response.common.profile;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@NoArgsConstructor
+@Setter
 @Getter
 public class UpdateAdminProfileDtoResponse extends UpdateUserProfileDtoResponse{
     private String position;

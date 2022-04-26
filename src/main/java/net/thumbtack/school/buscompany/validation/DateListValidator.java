@@ -19,6 +19,10 @@ public class DateListValidator extends BaseValidator implements ConstraintValida
     public boolean isValid(List<String> strings, ConstraintValidatorContext constraintValidatorContext) {
         SimpleDateFormat format = new SimpleDateFormat(style);
 
+        if(strings == null){
+            return true;
+        }
+
         try {
             for(String s : strings) {
                 format.parse(s);

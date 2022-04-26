@@ -6,7 +6,7 @@ import lombok.Getter;
 public class GetAdminProfileDtoResponse extends GetProfileDtoResponse{
     private String position;
 
-    public GetAdminProfileDtoResponse(String id, String firstname, String lastname, String patronymic, String userType, String position){
+    public GetAdminProfileDtoResponse(int id, String firstname, String lastname, String patronymic, String userType, String position){
         super(id, firstname, lastname, patronymic, userType);
         this.position = position;
     }

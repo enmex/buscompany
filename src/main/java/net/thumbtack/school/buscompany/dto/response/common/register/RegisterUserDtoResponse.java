@@ -6,7 +6,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public abstract class RegisterUserDtoResponse {
-    private String id;
+    private int id;
     private String firstName;
     private String lastName;
     private String patronymic;

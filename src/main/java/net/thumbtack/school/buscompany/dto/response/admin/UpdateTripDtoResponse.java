@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class UpdateTripDtoResponse {
     @NonNull
-    private String tripId;
+    private int tripId;
     @NonNull
     private String fromStation;
     @NonNull

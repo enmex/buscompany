@@ -1,11 +1,15 @@
 package net.thumbtack.school.buscompany.dto.request.common.profile;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import net.thumbtack.school.buscompany.validation.Phone;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
+@NoArgsConstructor
+@Setter
 @Getter
 public class UpdateClientProfileDtoRequest extends UpdateUserProfileDtoRequest{
     @NotNull

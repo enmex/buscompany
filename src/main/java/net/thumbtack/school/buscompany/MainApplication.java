@@ -27,6 +27,7 @@ public class MainApplication {
             SpringApplication.run(MainApplication.class, args);
         }
         catch(RuntimeException ex){
+            ex.printStackTrace();
             LOGGER.error("Can`t create connection to database, stop");
         }
     }

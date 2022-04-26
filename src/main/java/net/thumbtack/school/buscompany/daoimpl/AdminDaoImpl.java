@@ -6,13 +6,11 @@ import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
-import org.springframework.stereotype.Component;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.Date;
 import java.util.List;
 
-@Component
 public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
 
     @Override
@@ -107,51 +105,44 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public Bus getBus(String busName) throws BusCompanyException {
-        Bus bus;
+    public void updateTrip(Trip trip) throws BusCompanyException {
         try(SqlSession session = getSession()){
             try{
-                bus = getBusMapper(session).getBus(busName);
+                getTripMapper(session).updateTrip(trip);
             }
-            catch (RuntimeException ex){
+            catch(RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
-            }
-        }
-        return bus;
-    }
-
-    @Override
-    public Trip getTripById(String tripId) throws BusCompanyException {
-        Trip trip;
-        try(SqlSession session = getSession()){
-            try{
-                trip = session.selectOne(path + "TripMybatisMapper.getScheduleTripById", tripId);
-                if(trip == null){
-                    trip = session.selectOne(path + "TripMybatisMapper.getDatesTripById", tripId);
-                    if(trip == null){
-                        throw new RuntimeException("Unable to find trip");
-                    }
-                }
-            }
-            catch (RuntimeException ex){
-                session.rollback();
-                if(ex.getMessage().contains("Unable to find trip")){
-                    throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
-                }
                 throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
-        return trip;
     }
 
     @Override
-    public void updateTrip(Trip trip) {
+    public void deleteTrip(Trip trip) {
         try(SqlSession session = getSession()){
             try{
-                getTripMapper(session).update(trip);
+                getTripMapper(session).deleteTrip(trip);
             }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+    }
+
+    @Override
+    public void approveTrip(Trip trip) {
+        try(SqlSession session = getSession()){
+            try{
+                getTripMapper(session).approveTrip(trip);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
         }
     }
 }

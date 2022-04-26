@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 public class RegisterTripDtoResponse {
     @NonNull
-    private String tripId;
+    private int tripId;
     @NonNull
     private String fromStation;
     @NonNull

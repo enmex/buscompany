@@ -7,7 +7,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 public abstract class GetProfileDtoResponse {
-    private String id;
+    private int id;
     private String firstName;
     private String lastName;
     private String patronymic;

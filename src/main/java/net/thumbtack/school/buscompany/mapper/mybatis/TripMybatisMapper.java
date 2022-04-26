@@ -3,10 +3,7 @@ package net.thumbtack.school.buscompany.mapper.mybatis;
 import net.thumbtack.school.buscompany.model.DatesTrip;
 import net.thumbtack.school.buscompany.model.ScheduleTrip;
 import net.thumbtack.school.buscompany.model.Trip;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 
 import java.util.Date;
 
@@ -26,6 +23,14 @@ public interface TripMybatisMapper {
             "#{scheduleTrip.schedule.period})")
     void insertSchedule(@Param("scheduleTrip") ScheduleTrip scheduleTrip);
 
-    @Update("UPDATE trip SET ")
-    void update(@Param("trip") Trip trip);
+    @Update("UPDATE trip SET bus_name = #{trip.busName}, from_station = #{trip.fromStation}, to_station = #{trip.toStation}" +
+            ", `start` = DATE_FORMAT(#{trip.start}, '%H:%i'), duration = DATE_FORMAT(#{trip.duration}, '%H:%i'), " +
+            "price = #{trip.price} WHERE id = #{trip.id}")
+    void updateTrip(@Param("trip") Trip trip);
+
+    @Delete("DELETE FROM trip WHERE id = #{trip.id}")
+    void deleteTrip(@Param("trip") Trip trip);
+
+    @Update("UPDATE trip SET approved = #{trip.approved} WHERE id = #{trip.id}")
+    void approveTrip(@Param("trip") Trip trip);
 }

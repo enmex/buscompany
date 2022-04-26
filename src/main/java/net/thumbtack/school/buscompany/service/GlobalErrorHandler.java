@@ -1,25 +1,24 @@
 package net.thumbtack.school.buscompany.service;
 
 import net.thumbtack.school.buscompany.dto.response.error.ErrorDtoResponse;
+import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ControllerAdvice
+@EnableWebMvc
+@RestControllerAdvice
 public class GlobalErrorHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalErrorHandler.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDtoResponse handleValidation(MethodArgumentNotValidException ex){
         List<Error> errors = new ArrayList<>();
         ex.getBindingResult().getFieldErrors().stream().forEach(
@@ -27,4 +26,14 @@ public class GlobalErrorHandler {
         );
         return new ErrorDtoResponse(errors);
     }
+
+    @ExceptionHandler(BusCompanyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDtoResponse handleBadClientRequests(BusCompanyException ex){
+        List<Error> errors = new ArrayList<>();
+        errors.add(new Error(ex.getErrorCode().toString(), ex.getField(), ex.getMessage()));
+        return new ErrorDtoResponse(errors);
+    }
+
 }

@@ -3,13 +3,11 @@ package net.thumbtack.school.buscompany.daoimpl;
 import net.thumbtack.school.buscompany.dao.UserDao;
 import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
-import net.thumbtack.school.buscompany.model.Admin;
-import net.thumbtack.school.buscompany.model.Client;
-import net.thumbtack.school.buscompany.model.User;
+import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.UUID;
+import java.util.*;
 
 public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     @Override
@@ -212,5 +210,283 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             session.commit();
         }
+    }
+
+    @Override
+    public List<Trip> getTripsFromStation(String fromStation) {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByFromStation", fromStation));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByFromStation", fromStation));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public List<Trip> getTripsToStation(String toStation) {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByToStation", toStation));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByToStation", toStation));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public Trip getTripById(int tripId) throws BusCompanyException {
+        Trip trip;
+        try(SqlSession session = getSession()){
+            try{
+                trip = session.selectOne(path + "TripMybatisMapper.getScheduleTripById", tripId);
+                if(trip == null){
+                    trip = session.selectOne(path + "TripMybatisMapper.getDatesTripById", tripId);
+                    if(trip == null){
+                        throw new RuntimeException("Unable to find trip");
+                    }
+                }
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                if(ex.getMessage().contains("Unable to find trip")){
+                    throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
+                }
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trip;
+    }
+
+    @Override
+    public List<Trip> getTripsByBus(String busName) {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByBus", busName));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByBus", busName));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public List<Trip> getTripsFromDate(Date fromDate) {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByFromDate", fromDate));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByFromDate", fromDate));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public List<Trip> getTripsToDate(Date toDate) {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByToDate", toDate));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByToDate", toDate));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public List<Trip> getAllTrips() {
+        List<Trip> trips;
+        try(SqlSession session = getSession()){
+            try{
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getAllScheduleTrips"));
+                trips.addAll(session.selectList(path + "TripMybatisMapper.getAllDatesTrips"));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return trips;
+    }
+
+    @Override
+    public Set<Order> getAllOrders() {
+        Set<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = new HashSet<>(session.selectList(path + "OrderMybatisMapper.getAllOrders"));
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                ex.printStackTrace();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersFromStation(String fromStation) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersFromStation", fromStation);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersToStation(String toStation) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersToStation", toStation);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersByBus(String busName) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersByBus", busName);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersFromDate(Date fromDate) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersFromDate", fromDate);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersToDate(Date toDate) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersToDate", toDate);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+    @Override
+    public List<Order> getOrdersByClientId(int clientId) {
+        List<Order> orders;
+        try(SqlSession session = getSession()){
+            try{
+                orders = session.selectList(path + "OrderMybatisMapper.getOrdersByClientId", clientId);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return orders;
+    }
+
+
+    @Override
+    public Order getOrderById(int orderId) {
+        Order order;
+        try(SqlSession session = getSession()){
+            try{
+                order = session.selectOne(path + "OrderMybatisMapper.getOrderById", orderId);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return order;
+    }
+
+    @Override
+    public Bus getBus(String busName) throws BusCompanyException {
+        Bus bus;
+        try(SqlSession session = getSession()){
+            try{
+                bus = getBusMapper(session).getBus(busName);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+        }
+        return bus;
     }
 }

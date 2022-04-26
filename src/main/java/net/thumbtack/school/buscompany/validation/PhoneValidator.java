@@ -9,6 +9,10 @@ import javax.validation.ConstraintValidatorContext;
 public class PhoneValidator extends BaseValidator implements ConstraintValidator<Phone, String> {
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
+        if (s == null){
+            return false;
+        }
+
         String number = s.replaceAll("-", "");
         if(number.startsWith("+")){
             number = number.substring(1);

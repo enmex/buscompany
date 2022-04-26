@@ -26,7 +26,7 @@ public interface UserMybatisMapper {
     String getUserType(@Param("user") User user);
 
     @Update("UPDATE `user` SET firstname = #{user.firstName}, lastname = #{user.lastName}, " +
-            "patronymic = {user.patronymic}, `password` = #{user.password}" +
+            "patronymic = #{user.patronymic}, `password` = #{user.password}" +
             " WHERE id = #{user.id}")
     void updateUser(@Param("user") User user);
 }

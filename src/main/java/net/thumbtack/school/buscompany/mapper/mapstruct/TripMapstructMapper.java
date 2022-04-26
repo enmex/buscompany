@@ -2,9 +2,9 @@ package net.thumbtack.school.buscompany.mapper.mapstruct;
 
 import net.thumbtack.school.buscompany.dto.request.admin.trip.RegisterTripDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.admin.trip.ScheduleDtoRequest;
-import net.thumbtack.school.buscompany.dto.response.admin.RegisterTripDtoResponse;
-import net.thumbtack.school.buscompany.dto.response.admin.ScheduleDtoResponse;
-import net.thumbtack.school.buscompany.mapper.mybatis.TripMybatisMapper;
+import net.thumbtack.school.buscompany.dto.response.admin.*;
+import net.thumbtack.school.buscompany.dto.response.common.trip.GetTripAdminDtoResponse;
+import net.thumbtack.school.buscompany.dto.response.common.trip.GetTripDtoResponse;
 import net.thumbtack.school.buscompany.model.DatesTrip;
 import net.thumbtack.school.buscompany.model.Schedule;
 import net.thumbtack.school.buscompany.model.ScheduleTrip;
@@ -28,11 +28,11 @@ public interface TripMapstructMapper {
     @Mapping(source = "start", target = "start", qualifiedByName = "toDateHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toDateHHMM")
     @Mapping(target = "approved", ignore = true)
-    ScheduleTrip fromRegisterScheduleTripDto(RegisterTripDtoRequest request);
+    ScheduleTrip fromDtoRequest(RegisterTripDtoRequest request);
 
     @Mapping(source = "fromDate", target = "fromDate", qualifiedByName = "toDateYYYYMMDD")
     @Mapping(source = "toDate", target = "toDate", qualifiedByName = "toDateYYYYMMDD")
-    Schedule fromScheduleDtoRequest(ScheduleDtoRequest request);
+    Schedule fromDtoRequest(ScheduleDtoRequest request);
 
     @Mapping(source = "fromDate", target = "fromDate", qualifiedByName = "toStringYYYYMMDD")
     @Mapping(source = "toDate", target = "toDate", qualifiedByName = "toStringYYYYMMDD")
@@ -58,9 +58,70 @@ public interface TripMapstructMapper {
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
     RegisterTripDtoResponse toRegisterDtoResponse(DatesTrip trip);
 
-    @Mapping(source = "fromDate", target = "fromDate", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "toDate", target = "toDate", qualifiedByName = "toStringHHMM")
-    ScheduleDtoResponse toDtoResponse(Schedule schedule);
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(target = "schedule", ignore = true)
+    @Mapping(target = "bus", ignore = true)
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    UpdateTripDtoResponse toUpdateDtoResponse(ScheduleTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringList")
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    UpdateTripDtoResponse toUpdateDtoResponse(DatesTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(target = "schedule", ignore = true)
+    @Mapping(target = "bus", ignore = true)
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripProfileDtoResponse toGetDtoResponse(ScheduleTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringList")
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripProfileDtoResponse toGetDtoResponse(DatesTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(target = "schedule", ignore = true)
+    @Mapping(target = "bus", ignore = true)
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    ApproveTripDtoResponse toApproveDtoResponse(ScheduleTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringList")
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    ApproveTripDtoResponse toApproveDtoResponse(DatesTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(target = "schedule", ignore = true)
+    @Mapping(target = "bus", ignore = true)
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripAdminDtoResponse toGetTripAdminDtoResponse(ScheduleTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringList")
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripAdminDtoResponse toGetTripAdminDtoResponse(DatesTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(target = "schedule", ignore = true)
+    @Mapping(target = "bus", ignore = true)
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripDtoResponse toGetTripClientDtoResponse(ScheduleTrip trip);
+
+    @Mapping(source = "id", target = "tripId")
+    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringList")
+    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    GetTripDtoResponse toGetTripClientDtoResponse(DatesTrip trip);
 
     @Named("toDateList")
     default List<Date> toDateList(List<String> dates) throws ParseException {
@@ -103,5 +164,6 @@ public interface TripMapstructMapper {
     default String toStringYYYYMMDD(Date date){
         return new SimpleDateFormat("yyyy-MM-dd").format(date);
     }
+
 }
 
