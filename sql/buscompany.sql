@@ -77,3 +77,35 @@ CREATE TABLE trip_schedule (
     PRIMARY KEY (id),
     FOREIGN KEY (id_trip) REFERENCES trip(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE ticket (
+	id INT NOT NULL AUTO_INCREMENT,
+    id_client INT NOT NULL,
+    id_trip INT NOT NULL,
+    `date` DATE NOT NULL,
+    PRIMARY KEY(id),
+    FOREIGN KEY(id_client) REFERENCES `user`(id),
+    FOREIGN KEY(id_trip) REFERENCES trip(id)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE passenger (
+	id INT NOT NULL AUTO_INCREMENT, 
+    id_ticket INT NOT NULL,
+    firstname VARCHAR(50) NOT NULL,
+    lastname VARCHAR(50) NOT NULL,
+    passport VARCHAR(50) NOT NULL,
+    PRIMARY KEY(id),
+    UNIQUE(passport),
+    FOREIGN KEY(id_ticket) REFERENCES ticket(id) ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+CREATE TABLE occupied_seats (
+	id INT NOT NULL AUTO_INCREMENT,
+    id_ticket INT NOT NULL,
+    id_passenger INT NOT NULL,
+    place_number INT NOT NULL,
+    PRIMARY KEY(id),
+    UNIQUE(id_passenger, place_number),
+    FOREIGN KEY (id_ticket) REFERENCES ticket(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_passenger) REFERENCES passenger(id) ON DELETE CASCADE
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
