@@ -19,4 +19,7 @@ public interface BusMybatisMapper {
         @Result(column = "seats_number", property = "placeCount")
     })
     Bus getBus(@Param("busName") String busName);
+
+    @Delete("DELETE FROM bus")
+    void clear();
 }

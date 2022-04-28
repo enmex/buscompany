@@ -8,7 +8,7 @@ import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
 
 import java.sql.SQLIntegrityConstraintViolationException;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
@@ -68,15 +68,8 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             try{
                 getTripMapper(session).registerTrip(trip);
 
-                if(trip instanceof DatesTrip){
-                    DatesTrip datesTrip = (DatesTrip) trip;
-                    for(Date date : datesTrip.getDates()){
-                        getTripMapper(session).insertTripDate(datesTrip, date);
-                    }
-                }
-                else {
-                    ScheduleTrip scheduleTrip = (ScheduleTrip) trip;
-                    getTripMapper(session).insertSchedule(scheduleTrip);
+                for(LocalDate date : trip.getDates()){
+                    getTripMapper(session).insertTripDate(trip, date);
                 }
             }
             catch (RuntimeException ex){
@@ -144,5 +137,49 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             session.commit();
         }
+    }
+
+    @Override
+    public void registerSchedule(Trip trip, Schedule schedule) {
+        try(SqlSession session = getSession()){
+            try{
+                getTripMapper(session).registerSchedule(trip, schedule);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+    }
+
+    @Override
+    public void updateSchedule(Trip trip, Schedule schedule) {
+        try(SqlSession session = getSession()){
+            try{
+                getTripMapper(session).updateSchedule(trip, schedule);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+    }
+
+    @Override
+    public Schedule getSchedule(Trip trip) {
+        Schedule schedule;
+        try(SqlSession session = getSession()){
+            try{
+                schedule = getTripMapper(session).getSchedule(trip);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return schedule;
     }
 }

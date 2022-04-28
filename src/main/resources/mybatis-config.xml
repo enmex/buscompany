@@ -29,9 +29,6 @@
         <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.UserMybatisMapper" />
         <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.AdminMybatisMapper" />
         <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.ClientMybatisMapper"/>
-        <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.TripMybatisMapper"/>
-        <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.BusMybatisMapper"/>
-        <mapper class="net.thumbtack.school.buscompany.mapper.mybatis.OrderMybatisMapper"/>
     </mappers>
 
 </configuration>

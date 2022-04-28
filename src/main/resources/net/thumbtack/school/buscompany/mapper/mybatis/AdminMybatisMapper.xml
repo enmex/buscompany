@@ -13,18 +13,19 @@
         <result property="login" column="admin_login"/>
         <result property="password" column="admin_password"/>
         <result property="position" column="admin_position"/>
+        <result property="userType" column="user_type"/>
     </resultMap>
 
     <select id="getByLogin" resultMap="resultAdmin">
         SELECT `user`.id as id_admin, firstname as admin_firstname, lastname as admin_lastname, patronymic as admin_patronymic,
-                login as admin_login, `password` as admin_password, position as admin_position
+                login as admin_login, `password` as admin_password, user_type position as admin_position
         FROM `user` JOIN `admin` ON `user`.id = `admin`.id_user
         WHERE login = #{login}
     </select>
 
     <select id="getBySession" resultMap="resultAdmin">
         SELECT `user`.id as id_admin, firstname as admin_firstname, lastname as admin_lastname, patronymic as admin_patronymic,
-                login as admin_login, `password` as admin_password, position as admin_position
+                login as admin_login, `password` as admin_password, user_type, position as admin_position
         FROM `user` JOIN `admin` ON `user`.id = `admin`.id_user JOIN `session` ON `session`.id_user = `user`.id
         WHERE uuid = #{uuid}
     </select>

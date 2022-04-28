@@ -29,4 +29,7 @@ public interface UserMybatisMapper {
             "patronymic = #{user.patronymic}, `password` = #{user.password}" +
             " WHERE id = #{user.id}")
     void updateUser(@Param("user") User user);
+
+    @Delete("DELETE FROM `user`")
+    void clear();
 }

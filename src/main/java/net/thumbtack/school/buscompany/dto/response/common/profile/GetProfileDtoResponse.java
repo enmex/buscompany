@@ -11,7 +11,5 @@ public abstract class GetProfileDtoResponse {
     private String firstName;
     private String lastName;
     private String patronymic;
-
-    @Setter
     private String userType;
 }

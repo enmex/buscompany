@@ -13,14 +13,11 @@ public class PhoneValidator extends BaseValidator implements ConstraintValidator
             return false;
         }
 
+
+
         String number = s.replaceAll("-", "");
         if(number.startsWith("+")){
             number = number.substring(1);
-        }
-
-        if(number.charAt(0) < '7' || number.charAt(0) > '8'){
-            customMessageForValidation(constraintValidatorContext, "Номер телефона должен начинаться с цифры 7 или 8");
-            return false;
         }
 
         if(number.matches("[^0-9]") && !number.startsWith("+")){
@@ -28,8 +25,15 @@ public class PhoneValidator extends BaseValidator implements ConstraintValidator
             return false;
         }
 
+        if(number.charAt(0) < '7' || number.charAt(0) > '8'){
+            customMessageForValidation(constraintValidatorContext, "Номер телефона должен начинаться с цифры 7 или 8");
+            return false;
+        }
+
+
+
         if(number.length() != 11){
-            customMessageForValidation(constraintValidatorContext, "Неверный формат записи номера телефона");
+            customMessageForValidation(constraintValidatorContext, "Неверный длина записи номера телефона");
             return false;
         }
 

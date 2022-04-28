@@ -10,19 +10,21 @@ import java.util.Objects;
 @Getter
 @Setter
 public abstract class User {
-    protected int id;
+    private int id;
 
     @NonNull
-    protected String firstName;
+    private String firstName;
     @NonNull
-    protected String lastName;
+    private String lastName;
 
-    protected String patronymic;
+    private String patronymic;
     @NonNull
-    protected String login;
+    private String login;
 
     @NonNull
-    protected String password;
+    private String password;
+
+    private String userType;
 
     public User(@NonNull String firstName, @NonNull String lastName, String patronymic, @NonNull String login, @NonNull String password) {
         this.firstName = firstName;

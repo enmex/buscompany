@@ -11,27 +11,28 @@
         <result property="patronymic" column="client_patronymic"/>
         <result property="login" column="client_login"/>
         <result property="password" column="client_password"/>
+        <result property="userType" column="user_type"/>
         <result property="email" column="client_email"/>
         <result property="phone" column="client_phone"/>
     </resultMap>
 
     <select id="getByLogin" resultMap="resultClient">
         SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
         FROM `user` JOIN `client` ON `user`.id = `client`.id_user
         WHERE login = #{login}
     </select>
 
     <select id="getBySession" resultMap="resultClient">
         SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
         FROM `user` JOIN `client` ON `user`.id = `client`.id_user JOIN `session` ON `session`.id_user = `user`.id
         WHERE uuid = #{uuid}
     </select>
 
     <select id="getAllClients" resultMap="resultClient">
         SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, email as client_email, phone as client_phone
+                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
         FROM `user` JOIN `client` ON `user`.id = `client`.id_user
     </select>
 </mapper>

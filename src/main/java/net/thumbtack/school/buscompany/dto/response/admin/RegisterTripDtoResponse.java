@@ -8,7 +8,6 @@ import java.util.List;
 @Getter
 @Setter
 public class RegisterTripDtoResponse {
-    @NonNull
     private int tripId;
     @NonNull
     private String fromStation;
@@ -18,11 +17,9 @@ public class RegisterTripDtoResponse {
     private String start;
     @NonNull
     private String duration;
-    @NonNull
     private int price;
     @NonNull
     private BusDtoResponse bus;
-    @NonNull
     private boolean approved;
 
     private ScheduleDtoResponse schedule;

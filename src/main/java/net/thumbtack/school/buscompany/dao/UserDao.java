@@ -7,7 +7,7 @@ import net.thumbtack.school.buscompany.model.Trip;
 import net.thumbtack.school.buscompany.model.User;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
@@ -26,15 +26,15 @@ public interface UserDao {
     List<Trip> getTripsFromStation(String fromStation);
     List<Trip> getTripsToStation(String toStation);
     List<Trip> getTripsByBus(String busName);
-    List<Trip> getTripsFromDate(Date fromDate);
-    List<Trip> getTripsToDate(Date toDate);
+    List<Trip> getTripsFromDate(LocalDate fromDate);
+    List<Trip> getTripsToDate(LocalDate toDate);
     List<Trip> getAllTrips();
     Set<Order> getAllOrders();
     List<Order> getOrdersFromStation(String fromStation);
     List<Order> getOrdersToStation(String toStation);
     List<Order> getOrdersByBus(String busName);
-    List<Order> getOrdersFromDate(Date fromDate);
-    List<Order> getOrdersToDate(Date toDate);
+    List<Order> getOrdersFromDate(LocalDate fromDate);
+    List<Order> getOrdersToDate(LocalDate toDate);
     List<Order> getOrdersByClientId(int clientId);
     Order getOrderById(int orderId);
     Bus getBus(String busName) throws BusCompanyException;

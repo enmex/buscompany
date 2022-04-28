@@ -10,9 +10,9 @@ import java.util.List;
 public class GetTripAdminDtoResponse extends GetTripDtoResponse {
     private boolean approved;
 
-    public GetTripAdminDtoResponse(@NonNull int tripId, @NonNull String fromStation,
+    public GetTripAdminDtoResponse(int tripId, @NonNull String fromStation,
                                    @NonNull String toStation, @NonNull String start,
-                                   @NonNull String duration, @NonNull int price,
+                                   @NonNull String duration, int price,
                                    BusDtoResponse bus, ScheduleDtoResponse schedule,
                                    List<String> dates, boolean approved) {
         super(tripId, fromStation, toStation, start, duration, price, bus, schedule, dates);

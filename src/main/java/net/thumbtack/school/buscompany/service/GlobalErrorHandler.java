@@ -1,5 +1,7 @@
 package net.thumbtack.school.buscompany.service;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import net.thumbtack.school.buscompany.dto.response.error.ErrorDtoResponse;
 import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import org.slf4j.Logger;
@@ -36,4 +38,11 @@ public class GlobalErrorHandler {
         return new ErrorDtoResponse(errors);
     }
 
+    @AllArgsConstructor
+    @Getter
+    public static class Error {
+        private String errorCode;
+        private String field;
+        private String message;
+    }
 }

@@ -20,7 +20,6 @@ public class GetTripDtoResponse {
     private String start;
     @NonNull
     private String duration;
-    @NonNull
     private int price;
 
     private BusDtoResponse bus;

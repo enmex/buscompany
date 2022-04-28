@@ -19,7 +19,7 @@
         <result property="period" column="period"/>
     </resultMap>
 
-    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.DatesTrip">
+    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.TripDate">
         <id property="id" column="id_trip"/>
         <result property="busName" column="bus_name_trip"/>
         <result property="fromStation" column="from_station_trip"/>

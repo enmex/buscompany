@@ -2,16 +2,15 @@ package net.thumbtack.school.buscompany.mapper.mybatis;
 
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Passenger;
-import net.thumbtack.school.buscompany.model.Ticket;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 public interface OrderMybatisMapper {
 
-    @Insert("INSERT INTO ticket (id_client, id_trip, `date`) VALUES(#{clientId}, #{ticket.tripId}, DATE_FORMAT(#{ticket.date}, '%Y-%m-%d'))")
+    @Insert("INSERT INTO order (id_client, id_trip) VALUES(#{clientId}, #{ticket.tripId})")
     @Options(useGeneratedKeys = true, keyProperty = "ticket.id")
-    void insertTicket(@Param("clientId") int clientId, @Param("ticket") Ticket ticket);
+    void insertOrder(@Param("clientId") int clientId, @Param("order") Order order);
 
     @Insert("INSERT INTO passenger (id_ticket, firstname, lastname, passport) " +
             "VALUES(#{ticketId}, #{passenger.firstName}, #{passenger.lastName}," +
@@ -19,8 +18,8 @@ public interface OrderMybatisMapper {
     @Options(useGeneratedKeys = true, keyProperty = "passenger.id")
     void insertPassenger(@Param("ticketId") int ticketId, @Param("passenger") Passenger passenger);
 
-    @Select("SELECT place_number FROM occupied_seats WHERE id_ticket = #{orderId}")
-    List<Integer> getOccupiedSeats(@Param("orderId") int orderId);
+    @Select("SELECT place_number FROM occupied_seats WHERE id_trip = #{tripId}")
+    List<Integer> getOccupiedSeats(@Param("orderId") int tripId);
 
     @Select("SELECT id, firstname, lastname, passport FROM passenger WHERE passport = #{passport}")
     Passenger getByPassport(@Param("passport") String passport);

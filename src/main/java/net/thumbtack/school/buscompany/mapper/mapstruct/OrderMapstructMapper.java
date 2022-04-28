@@ -9,8 +9,6 @@ import net.thumbtack.school.buscompany.dto.response.client.PassengerDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.trip.GetOrderDtoResponse;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Passenger;
-import net.thumbtack.school.buscompany.model.Ticket;
-import net.thumbtack.school.buscompany.validation.Name;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -25,23 +23,38 @@ public interface OrderMapstructMapper {
     OrderMapstructMapper INSTANCE = Mappers.getMapper(OrderMapstructMapper.class);
 
     @Mapping(target = "passengers", ignore = true)
-    @Mapping(source = "date", target = "date", qualifiedByName = "toDateYYYYMMDD")
-    Ticket fromDtoRequest(OrderTicketDtoRequest request);
+    @Mapping(target = "client", ignore = true)
+    @Mapping(target = "trip", ignore = true)
+    @Mapping(source = "tripId", target = "id", ignore = true)
+    Order fromDtoRequest(OrderTicketDtoRequest request);
 
+    @Mapping(target = "id", ignore = true)
     Passenger fromDtoRequest(PassengerDtoRequest request);
 
     @Mapping(source = "id", target = "orderId")
     @Mapping(target = "passengers", ignore = true)
-    @Mapping(source = "date", target = "date", qualifiedByName = "toStringYYYYMMDD")
-    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    @Mapping(target = "totalPrice", ignore = true)
+    @Mapping(target = "date", ignore = true)
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "trip.fromStation", target = "fromStation")
+    @Mapping(source = "trip.toStation", target = "toStation")
+    @Mapping(source = "trip.busName", target = "busName")
+    @Mapping(source = "trip.start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "trip.duration", target = "duration", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "trip.price", target = "price")
     OrderTicketDtoResponse toDtoResponse(Order order);
 
     @Mapping(source = "id", target = "orderId")
     @Mapping(target = "passengers", ignore = true)
-    @Mapping(source = "date", target = "date", qualifiedByName = "toStringYYYYMMDD")
-    @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
+    @Mapping(target = "totalPrice", ignore = true)
+    @Mapping(target = "date", ignore = true)
+    @Mapping(source = "trip.id", target = "tripId")
+    @Mapping(source = "trip.fromStation", target = "fromStation")
+    @Mapping(source = "trip.toStation", target = "toStation")
+    @Mapping(source = "trip.busName", target = "busName")
+    @Mapping(source = "trip.start", target = "start", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "trip.duration", target = "duration", qualifiedByName = "toStringHHMM")
+    @Mapping(source = "trip.price", target = "price")
     GetOrderDtoResponse toGetDtoResponse(Order order);
 
     PassengerDtoResponse toDtoResponse(Passenger passenger);

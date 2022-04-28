@@ -19,7 +19,8 @@ public enum ErrorCode {
     EMPTY_DATES("Список дат не может быть пустым"),
     ORDER_NOT_EXISTS("Данного заказа не существует"),
     OFFLINE_OPERATION("Для совершения данной операции необходимо выйти из сети"),
-    PASSENGER_ALREADY_EXISTS("Данный пассажир уже есть в базе данных");
+    PASSENGER_ALREADY_EXISTS("Данный пассажир уже есть в базе данных"),
+    CANNOT_CLEAR_DATABASE("Не удалось очистить базу данных");
 
     private final String message;
 

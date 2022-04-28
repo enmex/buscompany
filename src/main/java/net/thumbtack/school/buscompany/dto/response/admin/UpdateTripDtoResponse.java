@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Setter
 public class UpdateTripDtoResponse {
-    @NonNull
     private int tripId;
     @NonNull
     private String fromStation;
@@ -19,11 +18,9 @@ public class UpdateTripDtoResponse {
     private String start;
     @NonNull
     private String duration;
-    @NonNull
     private int price;
     @NonNull
     private BusDtoResponse bus;
-    @NonNull
     private boolean approved;
 
     private ScheduleDtoResponse schedule;

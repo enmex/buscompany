@@ -5,7 +5,6 @@ import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Passenger;
-import net.thumbtack.school.buscompany.model.Ticket;
 import net.thumbtack.school.buscompany.model.User;
 import org.apache.ibatis.session.SqlSession;
 
@@ -15,12 +14,12 @@ import java.util.List;
 public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
 
     @Override
-    public void insertTicket(int clientId, Ticket ticket) {
+    public void insertOrder(int clientId, Order order) {
         try(SqlSession session = getSession()){
             try{
-                getTicketMapper(session).insertTicket(clientId, ticket);
-                for(Passenger passenger : ticket.getPassengers()){
-                    getTicketMapper(session).insertPassenger(ticket.getId(), passenger);
+                getTicketMapper(session).insertOrder(clientId, order);
+                for(Passenger passenger : order.getPassengers()){
+                    getTicketMapper(session).insertPassenger(order.getId(), passenger);
                 }
             }
             catch (RuntimeException ex){
@@ -38,11 +37,11 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public List<Integer> getOccupiedSeats(int orderId) {
+    public List<Integer> getOccupiedSeats(int tripId) {
         List<Integer> seats;
         try(SqlSession session = getSession()){
             try{
-                seats = getTicketMapper(session).getOccupiedSeats(orderId);
+                seats = getTicketMapper(session).getOccupiedSeats(tripId);
             }
             catch (RuntimeException ex){
                 session.rollback();

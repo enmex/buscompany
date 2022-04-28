@@ -1,7 +1,9 @@
 package net.thumbtack.school.buscompany.dto.response.common.register;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Getter
 public class RegisterAdminDtoResponse extends RegisterUserDtoResponse{
     private String position;

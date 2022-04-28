@@ -7,6 +7,7 @@ import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.time.LocalDate;
 import java.util.*;
 
 public class UserDaoImpl extends BaseDaoImpl implements UserDao {
@@ -217,8 +218,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByFromStation", fromStation));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByFromStation", fromStation));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getTripsByFromStation", fromStation));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -235,8 +235,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByToStation", toStation));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByToStation", toStation));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getTripsByToStation", toStation));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -253,12 +252,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         Trip trip;
         try(SqlSession session = getSession()){
             try{
-                trip = session.selectOne(path + "TripMybatisMapper.getScheduleTripById", tripId);
+                trip = session.selectOne(path + "TripMybatisMapper.getTripById", tripId);
                 if(trip == null){
-                    trip = session.selectOne(path + "TripMybatisMapper.getDatesTripById", tripId);
-                    if(trip == null){
-                        throw new RuntimeException("Unable to find trip");
-                    }
+                    throw new RuntimeException("Unable to find trip");
                 }
             }
             catch (RuntimeException ex){
@@ -279,8 +275,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByBus", busName));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByBus", busName));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getTripsByBus", busName));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -293,12 +288,11 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Trip> getTripsFromDate(Date fromDate) {
+    public List<Trip> getTripsFromDate(LocalDate fromDate) {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByFromDate", fromDate));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByFromDate", fromDate));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getTripsByFromDate", fromDate));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -311,12 +305,11 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Trip> getTripsToDate(Date toDate) {
+    public List<Trip> getTripsToDate(LocalDate toDate) {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getScheduleTripsByToDate", toDate));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getDatesTripsByToDate", toDate));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getTripsByToDate", toDate));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -333,8 +326,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         List<Trip> trips;
         try(SqlSession session = getSession()){
             try{
-                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getAllScheduleTrips"));
-                trips.addAll(session.selectList(path + "TripMybatisMapper.getAllDatesTrips"));
+                trips = new ArrayList<>(session.selectList(path + "TripMybatisMapper.getAllTrips"));
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -411,7 +403,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Order> getOrdersFromDate(Date fromDate) {
+    public List<Order> getOrdersFromDate(LocalDate fromDate) {
         List<Order> orders;
         try(SqlSession session = getSession()){
             try{
@@ -427,7 +419,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Order> getOrdersToDate(Date toDate) {
+    public List<Order> getOrdersToDate(LocalDate toDate) {
         List<Order> orders;
         try(SqlSession session = getSession()){
             try{

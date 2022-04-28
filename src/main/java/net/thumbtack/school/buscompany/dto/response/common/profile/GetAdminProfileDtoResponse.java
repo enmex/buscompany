@@ -6,8 +6,8 @@ import lombok.Getter;
 public class GetAdminProfileDtoResponse extends GetProfileDtoResponse{
     private String position;
 
-    public GetAdminProfileDtoResponse(int id, String firstname, String lastname, String patronymic, String userType, String position){
-        super(id, firstname, lastname, patronymic, userType);
+    public GetAdminProfileDtoResponse(int id, String firstName, String lastName, String patronymic, String userType, String position){
+        super(id, firstName, lastName, patronymic, userType);
         this.position = position;
     }
 }

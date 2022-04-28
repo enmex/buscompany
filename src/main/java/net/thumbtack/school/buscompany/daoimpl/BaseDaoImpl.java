@@ -1,6 +1,8 @@
 package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.BaseDao;
+import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mybatis.*;
 import net.thumbtack.school.buscompany.util.MyBatisUtils;
 import org.apache.ibatis.session.SqlSession;
@@ -34,5 +36,21 @@ public class BaseDaoImpl implements BaseDao {
 
     protected OrderMybatisMapper getTicketMapper(SqlSession session){
         return session.getMapper(OrderMybatisMapper.class);
+    }
+
+    @Override
+    public void clearAll() {
+        try(SqlSession session = getSession()){
+            try{
+                getUserMapper(session).clear();
+                //getBusMapper(session).clear();
+                //getTripMapper(session).clear();
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
     }
 }
