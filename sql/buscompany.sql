@@ -43,7 +43,7 @@ CREATE TABLE bus (
 
 CREATE TABLE trip (
 	id INT NOT NULL AUTO_INCREMENT,
-    bus_name VARCHAR(50) NOT NULL,
+    bus_name VARCHAR(50),
     from_station VARCHAR(60) NOT NULL,
     to_station VARCHAR(60) NOT NULL,
     `start` TIME NOT NULL,
