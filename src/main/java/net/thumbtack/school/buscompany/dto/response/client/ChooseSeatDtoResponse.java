@@ -15,5 +15,5 @@ public class ChooseSeatDtoResponse {
     private String lastName;
     private String firstName;
     private String passport;
-    private String place;
+    private int place;
 }

@@ -7,5 +7,5 @@ import lombok.Getter;
 @Getter
 public class RegisterBusDtoResponse {
     private String busName;
-    private String placeCount;
+    private int placeCount;
 }

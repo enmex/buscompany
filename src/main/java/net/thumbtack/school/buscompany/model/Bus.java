@@ -14,5 +14,5 @@ public class Bus {
     private int id;
     @NonNull
     private String busName;
-    private String placeCount;
+    private int placeCount;
 }

@@ -86,7 +86,7 @@ CREATE TABLE occupied_seats (
     id_passenger INT,
     place_number INT NOT NULL,
     UNIQUE(id_passenger, place_number),
-    FOREIGN KEY (id_trip) REFERENCES trip_date (id),
+    FOREIGN KEY (id_trip) REFERENCES trip_date (id) ON DELETE CASCADE,
     FOREIGN KEY (id_passenger) REFERENCES passenger(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -95,5 +95,5 @@ CREATE TABLE `schedule` (
     from_date DATE NOT NULL,
     to_date DATE NOT NULL,
     period VARCHAR(50) NOT NULL,
-	FOREIGN KEY (id_trip) REFERENCES trip_date (id) ON DELETE CASCADE
+	FOREIGN KEY (id_trip) REFERENCES trip (id) ON DELETE CASCADE
 )

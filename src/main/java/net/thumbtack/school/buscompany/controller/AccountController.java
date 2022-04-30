@@ -4,6 +4,8 @@ import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
 import net.thumbtack.school.buscompany.dto.response.common.profile.GetProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.unregister.UnregisterUserDtoResponse;
 import net.thumbtack.school.buscompany.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
+
     private final UserService userService;
 
     public AccountController(UserService userService) {

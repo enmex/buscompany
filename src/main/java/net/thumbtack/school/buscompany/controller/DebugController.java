@@ -16,7 +16,7 @@ public class DebugController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/clear", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/clear", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ClearDatabaseDtoResponse clear(){
         return userService.clearAll();
     }

@@ -3,8 +3,10 @@ package net.thumbtack.school.buscompany.validation;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 public class DateListValidator extends BaseValidator implements ConstraintValidator<Date, List<String>> {
@@ -17,17 +19,16 @@ public class DateListValidator extends BaseValidator implements ConstraintValida
 
     @Override
     public boolean isValid(List<String> strings, ConstraintValidatorContext constraintValidatorContext) {
-        SimpleDateFormat format = new SimpleDateFormat(style);
-
         if(strings == null){
             return true;
         }
 
         try {
             for(String s : strings) {
-                format.parse(s);
+                LocalDate.parse(s, DateTimeFormatter.ofPattern(style));
             }
-        } catch (ParseException e) {
+        }
+        catch (DateTimeParseException ex){
             return false;
         }
         return true;

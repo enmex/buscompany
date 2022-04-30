@@ -28,8 +28,7 @@ public class SessionController {
         return userService.loginUser(cookieValue, request);
     }
 
-    @DeleteMapping
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<LogoutUserDtoResponse> logoutUser(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue) {
         return userService.logoutUser(cookieValue);
     }

@@ -20,5 +20,5 @@ public class ChooseSeatDtoRequest {
     @NotNull
     private String passport;
     @NotNull
-    private String place;
+    private int place;
 }

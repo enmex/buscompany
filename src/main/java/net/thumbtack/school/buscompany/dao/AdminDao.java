@@ -28,4 +28,6 @@ public interface AdminDao {
     void updateSchedule(Trip trip, Schedule schedule);
 
     Schedule getSchedule(Trip trip);
+
+    void registerPlaces(Trip trip, Bus bus);
 }

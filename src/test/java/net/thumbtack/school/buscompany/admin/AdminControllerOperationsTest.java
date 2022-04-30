@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = AdminController.class)
-public class AdminOperationsTest extends BaseTest {
+public class AdminControllerOperationsTest extends BaseTest {
 
     @Test
     public void testRegisterAdmin() throws Exception {

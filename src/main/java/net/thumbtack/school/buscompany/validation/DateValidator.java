@@ -4,6 +4,11 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class DateValidator extends BaseValidator implements ConstraintValidator<Date, String>{
     private String style;
@@ -15,10 +20,14 @@ public class DateValidator extends BaseValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        SimpleDateFormat format = new SimpleDateFormat(style);
         try {
-            format.parse(s);
-        } catch (ParseException e) {
+            if(style.equals("HH:mm")) {
+                LocalTime.parse(s, DateTimeFormatter.ofPattern(style));
+            }
+            else{
+                LocalDate.parse(s, DateTimeFormatter.ofPattern(style));
+            }
+        } catch (DateTimeParseException ex) {
             return false;
         }
         return true;

@@ -15,5 +15,5 @@ public class RegisterBusDtoRequest {
     @NotNull
     private String busName;
     @NotNull
-    private String placeCount;
+    private int placeCount;
 }

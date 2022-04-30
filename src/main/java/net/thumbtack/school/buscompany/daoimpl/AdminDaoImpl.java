@@ -102,6 +102,11 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
         try(SqlSession session = getSession()){
             try{
                 getTripMapper(session).updateTrip(trip);
+                getTripMapper(session).deleteTripDates(trip);
+
+                for(LocalDate date : trip.getDates()){
+                    getTripMapper(session).insertTripDate(trip, date);
+                }
             }
             catch(RuntimeException ex){
                 session.rollback();
@@ -181,5 +186,27 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             session.commit();
         }
         return schedule;
+    }
+
+    @Override
+    public void registerPlaces(Trip trip, Bus bus) {
+        try(SqlSession session = getSession()){
+            try{
+                int placeCount = bus.getPlaceCount();
+
+                for(LocalDate date : trip.getDates()){
+                    int idTripDate = getTripMapper(session).getIdTripDateUsingTripAndDate(trip, date);
+
+                    for(int placeNumber = 0; placeNumber < placeCount; placeNumber++){
+                        getTripMapper(session).registerPlace(idTripDate, placeNumber);
+                    }
+                }
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR, "registerPlaces");
+            }
+            session.commit();
+        }
     }
 }

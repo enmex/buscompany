@@ -4,7 +4,6 @@ import net.thumbtack.school.buscompany.BaseTest;
 import net.thumbtack.school.buscompany.controller.AdminController;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
 import net.thumbtack.school.buscompany.dto.request.common.profile.UpdateClientProfileDtoRequest;
-import net.thumbtack.school.buscompany.dto.response.common.profile.UpdateAdminProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.profile.UpdateClientProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.register.RegisterClientDtoResponse;
 import org.junit.jupiter.api.Test;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = AdminController.class)
-public class ClientOperationsTest extends BaseTest {
+public class ClientControllerOperationsTest extends BaseTest {
 
     @Test
     public void testRegisterClient() throws Exception {
@@ -59,5 +58,12 @@ public class ClientOperationsTest extends BaseTest {
         assertEquals("Иванович", response.getPatronymic());
         assertEquals("79998887766", response.getPhone());
         assertEquals("mail@mail.ru", response.getEmail());
+    }
+
+    @Test
+    public void testGetAllClients() throws Exception {
+        MvcResult resultAdmin = registerAdmin();
+        MvcResult resultClient = registerClient();
+
     }
 }

@@ -11,7 +11,7 @@ import java.lang.annotation.*;
         validatedBy = {DateValidator.class, DateListValidator.class}
 )
 public @interface Date {
-    String style() default "HH:MM";
+    String style() default "HH:mm";
     String message() default "Неверно указана дата";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

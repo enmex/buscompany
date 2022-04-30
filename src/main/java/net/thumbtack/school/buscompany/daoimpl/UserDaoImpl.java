@@ -259,7 +259,6 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                ex.printStackTrace();
                 if(ex.getMessage().contains("Unable to find trip")){
                     throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
                 }
@@ -343,6 +342,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = new HashSet<>(session.selectList(path + "OrderMybatisMapper.getAllOrders"));
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -360,6 +362,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersFromStation", fromStation);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -376,6 +381,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersToStation", toStation);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -392,6 +400,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersByBus", busName);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -408,6 +419,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersFromDate", fromDate);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -424,6 +438,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersToDate", toDate);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -440,6 +457,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 orders = session.selectList(path + "OrderMybatisMapper.getOrdersByClientId", clientId);
+                for(Order order : orders){
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -457,6 +477,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
         try(SqlSession session = getSession()){
             try{
                 order = session.selectOne(path + "OrderMybatisMapper.getOrderById", orderId);
+                if(order != null) {
+                    order.getTrip().setDates(getTripMapper(session).getDatesList(order.getTrip()));
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();

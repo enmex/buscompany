@@ -32,6 +32,6 @@ public class RegisterTripDtoRequest {
 
     private ScheduleDtoRequest schedule;
 
-    @Date(style = "YYYY-MM-DD")
+    @Date(style = "yyyy-MM-dd")
     private List<String> dates;
 }

@@ -18,7 +18,7 @@
 
     <select id="getByLogin" resultMap="resultAdmin">
         SELECT `user`.id as id_admin, firstname as admin_firstname, lastname as admin_lastname, patronymic as admin_patronymic,
-                login as admin_login, `password` as admin_password, user_type position as admin_position
+                login as admin_login, `password` as admin_password, user_type, position as admin_position
         FROM `user` JOIN `admin` ON `user`.id = `admin`.id_user
         WHERE login = #{login}
     </select>

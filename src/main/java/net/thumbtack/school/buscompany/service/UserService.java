@@ -24,9 +24,7 @@ import net.thumbtack.school.buscompany.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -102,11 +100,11 @@ public class UserService extends ServiceBase{
         User user = userDao.getBySession(cookieValue);
 
         userDao.closeSession(cookieValue);
-        LOGGER.info("User " + user.getLogin() + " left the server");
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " left the server");
 
         ResponseCookie cookie = deleteJavaSessionCookie(cookieValue);
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new LogoutUserDtoResponse());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new LogoutUserDtoResponse());
     }
 
     public ResponseEntity<UnregisterUserDtoResponse> unregisterUser(String cookieValue) {
@@ -119,7 +117,8 @@ public class UserService extends ServiceBase{
 
         ResponseCookie cookie = deleteJavaSessionCookie(cookieValue);
 
-        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(
+        LOGGER.info("User " + user.getLogin() + " unregistered");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).header(HttpHeaders.SET_COOKIE, cookie.toString()).body(
                 new UnregisterUserDtoResponse()
         );
     }
@@ -143,12 +142,13 @@ public class UserService extends ServiceBase{
             response = ClientMapstructMapper.INSTANCE.toGetProfileDto(client);
         }
 
+        LOGGER.info("User " + user.getLogin() + " got his profile info");
         return response;
     }
 
     public GetOrdersDtoResponse getAllOrders(String cookieValue, String fromStation,
                                              String toStation, String busName,
-                                             String fromDate, String toDate, String clientId) throws ParseException {
+                                             String fromDate, String toDate, String clientId)  {
         if(cookieValue == null){
             throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "getAllOrders");
         }
@@ -207,6 +207,8 @@ public class UserService extends ServiceBase{
             }
         }
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got the information about orders with special params");
+
         return new GetOrdersDtoResponse(responseList);
     }
 
@@ -238,7 +240,11 @@ public class UserService extends ServiceBase{
         }
 
         if(fromDate != null){
-            trips.retainAll(userDao.getTripsFromDate(parseDate(toDate)));
+            trips.retainAll(userDao.getTripsFromDate(parseDate(fromDate)));
+        }
+
+        if(toDate != null){
+            trips.retainAll(userDao.getTripsToDate(parseDate(toDate)));
         }
 
         List<GetTripDtoResponse> responseList = new ArrayList<>();
@@ -295,11 +301,13 @@ public class UserService extends ServiceBase{
                 }
             }
         }
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got the information about trips with special params");
 
         return new GetTripsDtoResponse(responseList);
     }
 
     public ClearDatabaseDtoResponse clearAll() {
+        LOGGER.info("Database cleared successfully!");
         baseDao.clearAll();
         return new ClearDatabaseDtoResponse();
     }

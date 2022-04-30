@@ -14,6 +14,7 @@ import org.mapstruct.factory.Mappers;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public interface TripMapstructMapper {
     TripMapstructMapper INSTANCE = Mappers.getMapper(TripMapstructMapper.class);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "dates", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toDateHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toDateHHMM")
     @Mapping(target = "approved", ignore = true)
@@ -116,25 +118,25 @@ public interface TripMapstructMapper {
         List<String> datesStrings = new ArrayList<>(dates.size());
 
         for(LocalDate date : dates){
-            datesStrings.add(new SimpleDateFormat("yyyy-MM-dd").format(date));
+            datesStrings.add(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
 
         return datesStrings;
     }
 
     @Named("toDateHHMM")
-    default LocalDate toDateHHMM(String date) {
-        return LocalDate.parse(date);
+    default LocalTime toDateHHMM(String date) {
+        return LocalTime.parse(date, DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     @Named("toStringHHMM")
-    default String toStringHHMM(LocalDate date){
+    default String toStringHHMM(LocalTime date){
         return date.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     @Named("toDateYYYYMMDD")
     default LocalDate toDateYYYYMMDD(String date) {
-        return LocalDate.parse(date);
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
     @Named("toStringYYYYMMDD")

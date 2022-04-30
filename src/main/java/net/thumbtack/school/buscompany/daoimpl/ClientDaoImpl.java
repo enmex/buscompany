@@ -5,6 +5,7 @@ import net.thumbtack.school.buscompany.exception.BusCompanyException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Passenger;
+import net.thumbtack.school.buscompany.model.Place;
 import net.thumbtack.school.buscompany.model.User;
 import org.apache.ibatis.session.SqlSession;
 
@@ -14,12 +15,15 @@ import java.util.List;
 public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
 
     @Override
-    public void insertOrder(int clientId, Order order) {
+    public void insertOrder(Order order) {
         try(SqlSession session = getSession()){
             try{
-                getTicketMapper(session).insertOrder(clientId, order);
+                int idTripDate = getTripMapper(session).getIdTripDateUsingOrder(order);
+
+                getOrderMapper(session).insertOrder(idTripDate, order);
+
                 for(Passenger passenger : order.getPassengers()){
-                    getTicketMapper(session).insertPassenger(order.getId(), passenger);
+                    getOrderMapper(session).insertPassenger(order, passenger);
                 }
             }
             catch (RuntimeException ex){
@@ -37,11 +41,12 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public List<Integer> getOccupiedSeats(int tripId) {
+    public List<Integer> getFreeSeats(Order order) {
         List<Integer> seats;
         try(SqlSession session = getSession()){
             try{
-                seats = getTicketMapper(session).getOccupiedSeats(tripId);
+                int idTripDate = getTripMapper(session).getIdTripDateUsingOrder(order);
+                seats = getOrderMapper(session).getFreeSeats(idTripDate);
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -57,7 +62,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
         Passenger passenger;
         try(SqlSession session = getSession()){
             try{
-                passenger = getTicketMapper(session).getByPassport(passport);
+                passenger = getOrderMapper(session).getByPassport(passport);
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -69,10 +74,10 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public void changeSeat(Passenger passenger, String placeNumber) {
+    public void changeSeat(Passenger passenger, int placeNumber) {
         try(SqlSession session = getSession()){
             try{
-                getTicketMapper(session).changeSeat(passenger, placeNumber);
+                getOrderMapper(session).changeSeat(passenger, placeNumber);
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -86,7 +91,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     public void cancelOrder(int orderId) {
         try(SqlSession session = getSession()){
             try{
-                getTicketMapper(session).deleteTicket(orderId);
+                getOrderMapper(session).deleteOrder(orderId);
             } catch (RuntimeException ex){
                 session.rollback();
                 throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
@@ -100,7 +105,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
         boolean isClientOrder;
         try(SqlSession session = getSession()){
             try{
-                Integer id = getTicketMapper(session).getClientId(order);
+                Integer id = getOrderMapper(session).getClientId(order);
                 isClientOrder = id != null && id == user.getId();
             }
             catch (RuntimeException ex){
@@ -113,10 +118,12 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public void takeSeat(Order order, Passenger passenger, int seatNumber) {
+    public void takeSeat(Place place) {
         try(SqlSession session = getSession()){
             try{
-                getTicketMapper(session).takeSeat(order, passenger, seatNumber);
+                int idTripDate = getTripMapper(session).getIdTripDateUsingOrder(place.getOrder());
+
+                getOrderMapper(session).takeSeat(idTripDate, place);
             }
             catch (RuntimeException ex){
                 session.rollback();
@@ -126,6 +133,20 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
                     }
                     throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
                 }
+                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+    }
+
+    @Override
+    public void insertPassenger(Order order, Passenger passenger) {
+        try(SqlSession session = getSession()){
+            try{
+                getTripMapper(session).insertPassenger(order, passenger);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
                 throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();

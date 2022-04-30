@@ -6,12 +6,17 @@ import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mybatis.*;
 import net.thumbtack.school.buscompany.util.MyBatisUtils;
 import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.TransactionIsolationLevel;
 
 public class BaseDaoImpl implements BaseDao {
     protected final String path = "net.thumbtack.school.buscompany.mapper.mybatis.";
 
     protected SqlSession getSession(){
         return MyBatisUtils.getSqlSessionFactory().openSession();
+    }
+
+    protected SqlSession getSerializableSession(){
+        return MyBatisUtils.getSqlSessionFactory().openSession(TransactionIsolationLevel.SERIALIZABLE);
     }
 
     protected AdminMybatisMapper getAdminMapper(SqlSession session){
@@ -34,7 +39,7 @@ public class BaseDaoImpl implements BaseDao {
         return session.getMapper(TripMybatisMapper.class);
     }
 
-    protected OrderMybatisMapper getTicketMapper(SqlSession session){
+    protected OrderMybatisMapper getOrderMapper(SqlSession session){
         return session.getMapper(OrderMybatisMapper.class);
     }
 
@@ -43,8 +48,8 @@ public class BaseDaoImpl implements BaseDao {
         try(SqlSession session = getSession()){
             try{
                 getUserMapper(session).clear();
-                //getBusMapper(session).clear();
-                //getTripMapper(session).clear();
+                getBusMapper(session).clear();
+                getTripMapper(session).clear();
             }
             catch (RuntimeException ex){
                 session.rollback();

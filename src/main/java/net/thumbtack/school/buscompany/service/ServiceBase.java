@@ -13,6 +13,8 @@ import org.springframework.http.ResponseCookie;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -47,10 +49,21 @@ public class ServiceBase {
         List<String> datesString = new ArrayList<>(dates.size());
 
         for(LocalDate date : dates){
-            datesString.add(new SimpleDateFormat("yyyy-MM-dd").format(date));
+            datesString.add(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
         return datesString;
     }
+
+    protected List<LocalDate> parseDates(List<String> dates){
+        List<LocalDate> dateList = new ArrayList<>(dates.size());
+
+        for(String date : dates){
+            dateList.add(LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        }
+
+        return dateList;
+    }
+
     protected List<LocalDate> createDates(Schedule schedule){
         List<LocalDate> dates = new ArrayList<>();
 
@@ -67,21 +80,40 @@ public class ServiceBase {
             return dates;
         }
 
-        if(schedule.getPeriod().equals("odd") || schedule.getPeriod().equals("even")){
+        if(schedule.getPeriod().equals("odd")){
+            LocalDate currentDate = schedule.getFromDate();
+
+            if(!isOddDay(currentDate)){
+                currentDate = currentDate.plus(1, ChronoUnit.DAYS);
+            }
+
+            do {
+                dates.add(currentDate);
+                currentDate = currentDate.plus(2, ChronoUnit.DAYS);
+
+                if(!isOddDay(currentDate)){
+                    currentDate = currentDate.minus(1, ChronoUnit.DAYS);
+                }
+            } while(schedule.getToDate().isAfter(currentDate));
+
+            return dates;
+        }
+
+        if(schedule.getPeriod().equals("even")){
             LocalDate currentDate = schedule.getFromDate();
 
             if(isOddDay(currentDate)){
-                currentDate = schedule.getFromDate();
-            }
-            else{
-                currentDate = dateAfter(currentDate);
+                currentDate = currentDate.plus(1, ChronoUnit.DAYS);
             }
 
-            while(schedule.getToDate().isAfter(dateAfter(currentDate))){
-                //  if(dateAfter(currentDate).toInstant().get(ChronoField.DAY_OF_MONTH))
-                currentDate = dateAfter(dateAfter(currentDate));
+            do {
                 dates.add(currentDate);
-            }
+                currentDate = currentDate.plus(2, ChronoUnit.DAYS);
+
+                if(isOddDay(currentDate)){
+                    currentDate = currentDate.minus(1, ChronoUnit.DAYS);
+                }
+            } while(schedule.getToDate().isAfter(currentDate));
 
             return dates;
         }
@@ -125,6 +157,11 @@ public class ServiceBase {
         return Arrays.stream(days).allMatch(str -> dayOfWeekMap.get(str) != null);
     }
 
+    protected boolean nextDayIsNextMonth(LocalDate from){
+        int currentMonth = from.getMonthValue();
+        return from.plus(1, ChronoUnit.DAYS).getDayOfMonth() != currentMonth;
+    }
+
     protected LocalDate dateAfter(LocalDate date){
         return date.plus(1, ChronoUnit.DAYS);
     }
@@ -158,11 +195,19 @@ public class ServiceBase {
         return LocalDate.parse(date);
     }
 
+    protected LocalTime parseTime(String time){
+        return LocalTime.parse(time, DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
     protected ResponseCookie createJavaSessionIdCookie(String cookieValue){
         return ResponseCookie.from(BusCompanyCookies.JAVASESSIONID, cookieValue).maxAge(cookieMaxAge).build();
     }
 
     protected ResponseCookie deleteJavaSessionCookie(String cookieValue){
-        return ResponseCookie.from(BusCompanyCookies.JAVASESSIONID, cookieValue).maxAge(0L).build();
+        return ResponseCookie.from(BusCompanyCookies.JAVASESSIONID, "").maxAge(0L).build();
+    }
+
+    protected boolean inBetween(LocalDate date, List<LocalDate> dates){
+        return date.isAfter(dates.get(0)) && dates.get(dates.size() - 1).isAfter(date);
     }
 }

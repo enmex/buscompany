@@ -16,6 +16,9 @@ import org.mapstruct.factory.Mappers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @Mapper
@@ -61,6 +64,9 @@ public interface OrderMapstructMapper {
     @Mapping(target = "ticket", ignore = true)
     ChooseSeatDtoResponse fromDtoRequest(ChooseSeatDtoRequest request);
 
+    @Mapping(target = "id", ignore = true)
+    Passenger fromDtoRequestToPassenger(ChooseSeatDtoRequest request);
+
     @Named("toDateYYYYMMDD")
     default Date toDateYYYYMMDD(String date) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd").parse(date);
@@ -72,7 +78,7 @@ public interface OrderMapstructMapper {
     }
 
     @Named("toStringHHMM")
-    default String toStringHHMM(Date date){
-        return new SimpleDateFormat("HH:mm").format(date);
+    default String toStringHHMM(LocalTime time){
+        return time.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 }

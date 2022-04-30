@@ -63,6 +63,7 @@ public class AdminService extends ServiceBase{
             timer.schedule(timerTask, cookieMaxAge * 1000);
         }).start();
 
+        LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " just registered");
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(
                 new RegisterAdminDtoResponse(admin.getId(), admin.getFirstName(), admin.getLastName(),
                         admin.getPatronymic(), admin.getUserType(), admin.getPosition())
@@ -95,6 +96,7 @@ public class AdminService extends ServiceBase{
         admin.setPassword(request.getNewPassword());
         admin.setPosition(request.getPosition());
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " just updated his profile");
         userDao.updateUser(user);
 
         return AdminMapstructMapper.INSTANCE.toUpdateDto(admin);
@@ -112,6 +114,8 @@ public class AdminService extends ServiceBase{
         }
 
         Bus bus = BusMapstructMapper.INSTANCE.fromRegisterDto(request);
+
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " registered new bus (" + bus.getBusName() + ")");
         adminDao.registerBus(bus);
 
         return BusMapstructMapper.INSTANCE.toRegisterDto(bus);
@@ -128,9 +132,15 @@ public class AdminService extends ServiceBase{
             throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "getAllBuses");
         }
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got all buses info's");
         List<Bus> buses = adminDao.getAllBuses();
+        List<BusDtoResponse> responseBusList = new ArrayList<>(buses.size());
 
-        return  new GetAllBusesDtoResponse(buses);
+        for(Bus bus : buses){
+            responseBusList.add(BusMapstructMapper.INSTANCE.toDtoResponse(bus));
+        }
+
+        return  new GetAllBusesDtoResponse(responseBusList);
     }
 
     public GetAllClientsDtoResponse getAllClients(String cookieValue) {
@@ -150,6 +160,7 @@ public class AdminService extends ServiceBase{
         for(Client client : clients){
             clientProfiles.add(ClientMapstructMapper.INSTANCE.toGetProfileDto(client));
         }
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got all clients info`s");
 
         return new GetAllClientsDtoResponse(clientProfiles);
     }
@@ -196,6 +207,7 @@ public class AdminService extends ServiceBase{
             response.setDates(formatDates(trip.getDates()));
         }
         else {
+            trip.setDates(parseDates(request.getDates()));
             adminDao.registerTrip(trip);
 
             response = TripMapstructMapper.INSTANCE.toRegisterDtoResponse(trip);
@@ -203,6 +215,9 @@ public class AdminService extends ServiceBase{
             response.setBus(busDtoResponse);
         }
 
+        adminDao.registerPlaces(trip, bus);
+
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " added new trip from " + trip.getFromStation() + " to " + trip.getToStation());
         return response;
     }
 
@@ -223,9 +238,25 @@ public class AdminService extends ServiceBase{
         }
 
         Trip trip = userDao.getTripById(tripId);
+        Schedule scheduleTrip = adminDao.getSchedule(trip);
 
         if(trip == null){
             throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
+        }
+
+        trip.setBusName(request.getBusName());
+        trip.setPrice(request.getPrice());
+        trip.setFromStation(request.getFromStation());
+        trip.setToStation(request.getToStation());
+        trip.setStart(parseTime(request.getStart()));
+        trip.setDuration(parseTime(request.getDuration()));
+
+        if(request.getDates() != null){
+            if(scheduleTrip != null){
+                throw new BusCompanyException(ErrorCode.TRIP_IS_REGULAR);
+            }
+
+            trip.setDates(parseDates(request.getDates()));
         }
 
         Bus bus = userDao.getBus(request.getBusName());
@@ -234,9 +265,6 @@ public class AdminService extends ServiceBase{
         UpdateTripDtoResponse response;
 
         if(request.getSchedule() != null){
-            if(request.getSchedule() == null){
-                throw new BusCompanyException(ErrorCode.EMPTY_SCHEDULE);
-            }
             Schedule schedule = TripMapstructMapper.INSTANCE.fromDtoRequest(request.getSchedule());
 
             trip.setDates(createDates(schedule));
@@ -249,15 +277,12 @@ public class AdminService extends ServiceBase{
             response.setSchedule(scheduleDtoResponse);
         }
         else{
-            if(request.getDates() == null){
-                throw new BusCompanyException(ErrorCode.EMPTY_DATES);
-            }
-
             response = TripMapstructMapper.INSTANCE.toUpdateDtoResponse(trip);
         }
         response.setBus(busDtoResponse);
         response.setDates(formatDates(trip.getDates()));
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " updated trip from " + trip.getFromStation() + " to " + trip.getToStation());
         adminDao.updateTrip(trip);
 
         return response;
@@ -279,12 +304,14 @@ public class AdminService extends ServiceBase{
         if(trip == null){
             throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
         }
+
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " deleted trip from " + trip.getFromStation() + " to " + trip.getToStation());
         adminDao.deleteTrip(trip);
 
         return new DeleteTripDtoResponse();
     }
 
-    public GetTripProfileDtoResponse getTripInfo(String cookieValue, int tripId) {
+     public GetTripProfileDtoResponse getTripInfo(String cookieValue, int tripId) {
         if(cookieValue == null){
             throw new BusCompanyException(ErrorCode.ONLINE_OPERATION);
         }
@@ -315,6 +342,7 @@ public class AdminService extends ServiceBase{
             response.setSchedule(scheduleDtoResponse);
         }
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got info of the trip from " + trip.getFromStation() + " to " + trip.getToStation());
         return response;
     }
 
@@ -351,6 +379,7 @@ public class AdminService extends ServiceBase{
             response.setSchedule(scheduleDtoResponse);
         }
 
+        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " approved trip from " + trip.getFromStation() + " to " + trip.getToStation());
         return response;
     }
 }
