@@ -131,13 +131,17 @@ public class ClientService extends ServiceBase{
             throw new BusCompanyException(ErrorCode.NO_TRIP_ON_THIS_DATE, "orderTicket");
         }
 
+        // REVU а мест свободных хватит ? Давайте это обсудим голосом
         clientDao.insertOrder(order);
 
+        // REVU а это здесь зачем ? При добавлении ордера места не выделяют
         List<Integer> freeSeats = clientDao.getFreeSeats(order);
 
         for(Passenger passenger : order.getPassengers()){
             Place place = new Place();
 
+            // REVU А Вы уверены, что оно свободно ? А вдруг его успел занять другой заказ между
+            // clientDao.getFreeSeats и текущим местом кода ?
             place.setPlaceNumber(freeSeats.get(0));
             freeSeats.remove(0);
 

@@ -166,6 +166,7 @@ public class AdminService extends ServiceBase{
     }
 
     public RegisterTripDtoResponse addTrip(String cookieValue, RegisterTripDtoRequest request) {
+        // REVU а не оформить ли это как private checkCookie ?
         if(cookieValue == null){
             throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "addTrip");
         }
@@ -174,6 +175,8 @@ public class AdminService extends ServiceBase{
             throw new BusCompanyException(ErrorCode.DATES_AND_SCHEDULE_INVOLVED, "addTrip");
         }
 
+        // REVU можно по cookie сразу получить Admin
+        // https://dzone.com/articles/ibatis-mybatis-discriminator
         User user = userDao.getBySession(cookieValue);
         String userType = user.getUserType();
 

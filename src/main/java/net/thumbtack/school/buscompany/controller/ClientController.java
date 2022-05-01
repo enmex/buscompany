@@ -25,6 +25,7 @@ public class ClientController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    // REVU не нужно тут никакую cookie передавать. Нет такого в ТЗ
     public ResponseEntity<RegisterClientDtoResponse> registerClient(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                                     @RequestBody @Valid RegisterClientDtoRequest request){
         return clientService.registerClient(cookieValue, request);

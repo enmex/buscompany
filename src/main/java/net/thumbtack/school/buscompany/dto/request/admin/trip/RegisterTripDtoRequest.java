@@ -30,6 +30,11 @@ public class RegisterTripDtoRequest {
     @NotNull
     private int price;
 
+    // REVU а вот тут тоже нужна валидация
+    // либо schedule!=null, либо dates!=null, но не оба
+    // надо проверить
+    // делается кастомными валидаторами на класс в целом
+    //https://www.baeldung.com/spring-mvc-custom-validator
     private ScheduleDtoRequest schedule;
 
     @Date(style = "yyyy-MM-dd")

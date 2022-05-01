@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+// REVU посмотрите аннотацию @Data, и писать придется намного меньше
+// Equivalent to @Getter @Setter @RequiredArgsConstructor @ToString @EqualsAndHashCode.
 @AllArgsConstructor
 @RequiredArgsConstructor
 @NoArgsConstructor
@@ -16,6 +18,8 @@ import java.util.List;
 public class Trip {
     private int id;
     @NonNull
+    // REVU У Вас же есть class Bus, поэтому должно быть
+    // private Bus bus
     private String busName;
     @NonNull
     private String fromStation;
@@ -28,6 +32,13 @@ public class Trip {
     private int price;
     private boolean approved;
 
+    // REVU нет, не List<LocalDate>, а List<TripDate>
+    // сделайте этот класс
+    // В нем, конечно, LocalDate, а может, что-то еще
+    // Trip - это маршрут.
+    // TripDate - это его имплементация в указанный день
+    // например, если понадобится добавить ФИО водителя, то это туда - водители в разные дни разные
+    // поэтому лучше свой класс
     private List<LocalDate> dates;
 
     public Trip(int id, @NonNull String busName,

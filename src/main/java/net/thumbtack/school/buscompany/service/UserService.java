@@ -76,6 +76,8 @@ public class UserService extends ServiceBase{
                     client.getPatronymic(), userType, client.getEmail(), client.getPhone());
         }
 
+        // REVU так никаких ресурсов не хватит, если на каждого юзера Вы будете поток заводить
+        // давайте это голосом обсудим
         new Thread(() -> {
             TimerTask timerTask = new TimerTask() {
                 @Override

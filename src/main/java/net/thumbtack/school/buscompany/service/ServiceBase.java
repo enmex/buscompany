@@ -68,6 +68,10 @@ public class ServiceBase {
         List<LocalDate> dates = new ArrayList<>();
 
         if (schedule.getPeriod().equals("daily")) {
+            // REVU проще
+            // 		for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plus(1, ChronoUnit.DAYS)) {
+            //			dates.add(date);
+            //		}
             LocalDate currentDate = schedule.getFromDate();
             dates.add(currentDate);
 
@@ -81,6 +85,10 @@ public class ServiceBase {
         }
 
         if(schedule.getPeriod().equals("odd")){
+            // REVU 			for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plus(1, ChronoUnit.DAYS)) {
+            //				if (date.getDayOfMonth() % 2 == 1)
+            //					dates.add(date);
+            //			}
             LocalDate currentDate = schedule.getFromDate();
 
             if(!isOddDay(currentDate)){

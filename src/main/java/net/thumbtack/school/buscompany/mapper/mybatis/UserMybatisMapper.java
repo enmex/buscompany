@@ -11,6 +11,8 @@ public interface UserMybatisMapper {
     void insert(@Param("user") User user);
 
     @Insert("INSERT INTO `session` (id_user, uuid) VALUES (#{user.id}, #{uuid})")
+    // REVU insertSession
+    // open - открыть что-то уже существующее
     void openSession(@Param("user") User user, @Param("uuid") String uuid);
 
     @Select("SELECT id_user FROM `session` WHERE id_user = #{user.id}")

@@ -21,6 +21,7 @@ public class AdminController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    // REVU не нужно тут никакую cookie передавать. Нет такого в ТЗ
     public ResponseEntity<RegisterAdminDtoResponse> registerAdmin(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                                   @RequestBody @Valid RegisterAdminDtoRequest request){
         return adminService.registerAdmin(cookieValue, request);

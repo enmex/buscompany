@@ -24,6 +24,7 @@ public abstract class User {
     @NonNull
     private String password;
 
+    // REVU enum UserType
     private String userType;
 
     public User(@NonNull String firstName, @NonNull String lastName, String patronymic, @NonNull String login, @NonNull String password) {
