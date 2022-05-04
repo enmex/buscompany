@@ -1,6 +1,5 @@
 package net.thumbtack.school.buscompany.validation;
 
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.*;

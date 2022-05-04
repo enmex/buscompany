@@ -5,74 +5,95 @@
 
 <mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.TripMybatisMapper">
 
-    <resultMap id="resultTrip" type="net.thumbtack.school.buscompany.model.Trip">
-        <id property="id" column="id_trip_trip"/>
+    <resultMap id="resultBus" type="net.thumbtack.school.buscompany.model.Bus">
+        <constructor>
+            <idArg column="id_bus" javaType="_integer"/>
+        </constructor>
         <result property="busName" column="bus_name_trip"/>
+        <result property="placeCount" column="bus_place_count"/>
+    </resultMap>
+
+    <resultMap id="resultTrip" type="net.thumbtack.school.buscompany.model.Trip">
+        <constructor>
+            <idArg column="id_trip_trip" javaType="_integer"/>
+        </constructor>
         <result property="fromStation" column="from_station_trip"/>
         <result property="toStation" column="to_station_trip"/>
         <result property="start" column="start_trip"/>
         <result property="duration" column="duration_trip"/>
         <result property="price" column="price_trip"/>
         <result property="approved" column="approved_trip"/>
-        <collection property="dates" resultMap="dateList" javaType="java.util.ArrayList"/>
+
+        <association property="bus" resultMap="resultBus"/>
+
+        <collection property="tripDates" resultMap="resultDatesTrip" javaType="java.util.ArrayList"/>
     </resultMap>
 
-    <resultMap id="dateList" type="java.time.LocalDate">
+    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.TripDate">
+        <id property="id" column="id_trip_date"/>
         <result property="date" column="date_trip"/>
     </resultMap>
 
     <select id="getTripById" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count, trip.from_station as from_station_trip,
                 trip.to_station as to_station_trip, trip.`start` as start_trip, trip.duration as duration_trip,
-                trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+                trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        JOIN bus ON bus.bus_name = trip.bus_name
         WHERE trip.id = #{tripId}
     </select>
 
     <select id="getTripsByFromStation" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
             trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-            trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+            trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        JOIN bus ON bus.bus_name = trip.bus_name
         WHERE trip.from_station = #{fromStation}
     </select>
 
     <select id="getTripsByToStation" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-        trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        JOIN bus ON bus.bus_name = trip.bus_name
         WHERE trip.to_station = #{toStation}
     </select>
 
     <select id="getTripsByFromDate" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-        trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
-        WHERE trip_date.`date` &gt;= DATE_FORMAT(#{fromDate}, '%Y-%m-%d')
+        JOIN bus ON bus.bus_name = trip.bus_name
+        WHERE trip_date.`date` &gt;= #{fromDate}
     </select>
 
     <select id="getTripsByToDate" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-        trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
-        WHERE trip_date.`date` &lt;= DATE_FORMAT(#{fromDate}, '%Y-%m-%d')
+        JOIN bus ON bus.bus_name = trip.bus_name
+        WHERE trip_date.`date` &lt;= #{fromDate}
     </select>
 
     <select id="getTripsByBus" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-        trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        JOIN bus ON bus.bus_name = trip.bus_name
         WHERE trip.bus_name = #{busName}
     </select>
 
     <select id="getAllTrips" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, trip.bus_name as bus_name_trip, trip.from_station as from_station_trip,
-        trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
-        trip.price as price_trip, trip.approved as approved_trip, trip_date.`date` as date_trip
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count, trip.from_station as from_station_trip,
+        trip.to_station as to_station_trip, trip.`start` as start_trip, trip.duration as duration_trip,
+        trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
+        JOIN bus ON bus.bus_name = trip.bus_name
     </select>
+
 </mapper>

@@ -25,10 +25,6 @@ public class Order {
         return passengers.size();
     }
 
-    public Passenger getPassenger(int i){
-        return passengers.get(i);
-    }
-
     public boolean containsPassenger(Passenger passenger){
         return passengers.contains(passenger);
     }

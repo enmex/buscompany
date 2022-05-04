@@ -11,7 +11,7 @@ import net.thumbtack.school.buscompany.dto.request.common.register.RegisterClien
 import net.thumbtack.school.buscompany.dto.response.client.*;
 import net.thumbtack.school.buscompany.dto.response.common.profile.UpdateUserProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.register.RegisterClientDtoResponse;
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mapstruct.ClientMapstructMapper;
 import net.thumbtack.school.buscompany.mapper.mapstruct.OrderMapstructMapper;
@@ -34,28 +34,13 @@ public class ClientService extends ServiceBase{
     }
 
 
-    public ResponseEntity<RegisterClientDtoResponse> registerClient(String cookieValue, RegisterClientDtoRequest request) {
-        if(cookieValue != null){
-            throw new BusCompanyException(ErrorCode.OFFLINE_OPERATION, "registerClient");
-        }
-
+    public ResponseEntity<RegisterClientDtoResponse> registerClient(RegisterClientDtoRequest request) {
         Client client = ClientMapstructMapper.INSTANCE.fromRegisterDto(request);
-        client.setUserType("client");
+        client.setUserType(UserType.CLIENT);
 
         String uuid = userDao.register(client);
 
         ResponseCookie cookie = createJavaSessionIdCookie(uuid);
-
-        new Thread(() -> {
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    userDao.closeSession(uuid);
-                }
-            };
-            Timer timer = new Timer();
-            timer.schedule(timerTask, cookieMaxAge * 1000);
-        }).start();
 
         LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " just registered");
         RegisterClientDtoResponse response = ClientMapstructMapper.INSTANCE.toRegisterDto(client);
@@ -64,20 +49,10 @@ public class ClientService extends ServiceBase{
     }
 
     public UpdateUserProfileDtoResponse updateClientProfile(String cookieValue, UpdateClientProfileDtoRequest request) {
-        if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "updateClientProfile");
-        }
-        User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
-
-        if(!userType.equals("client")){
-            throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "updateClientProfile");
-        }
-
-        Client client = (Client) user;
+        Client client = getClient(cookieValue);
 
         if(!client.getPassword().equals(request.getOldPassword())){
-            throw new BusCompanyException(ErrorCode.INVALID_PASSWORD, "password");
+            throw new CheckedException(ErrorCode.INVALID_PASSWORD);
         }
 
         client.setFirstName(request.getFirstName());
@@ -87,24 +62,14 @@ public class ClientService extends ServiceBase{
         client.setEmail(request.getEmail());
         client.setPhone(request.getPhone());
 
-        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " just updated his profile");
+        LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " just updated his profile");
         userDao.updateUser(client);
 
         return ClientMapstructMapper.INSTANCE.toUpdateDto(client);
     }
 
-    public OrderTicketDtoResponse orderTicket(String cookieValue, OrderTicketDtoRequest request) {
-        if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "orderTicket");
-        }
-        User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
-
-        if(userType.equals("admin")){
-            throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "orderTicket");
-        }
-
-        Client client = (Client) user;
+    public OrderTicketDtoResponse orderTrip(String cookieValue, OrderTicketDtoRequest request) {
+        Client client = getClient(cookieValue);
 
         Order order = OrderMapstructMapper.INSTANCE.fromDtoRequest(request);
         List<Passenger> passengers = new ArrayList<>();
@@ -118,37 +83,41 @@ public class ClientService extends ServiceBase{
         Trip trip = userDao.getTripById(request.getTripId());
 
         if(trip == null){
-            throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS, "orderTicket");
+            throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
         }
 
         if(!trip.isApproved()){
-            throw new BusCompanyException(ErrorCode.TRIP_NOT_APPROVED, "orderTicket");
+            throw new CheckedException(ErrorCode.TRIP_NOT_APPROVED);
         }
 
         order.setTrip(trip);
 
-        if(!inBetween(order.getDate(), trip.getDates())){
-            throw new BusCompanyException(ErrorCode.NO_TRIP_ON_THIS_DATE, "orderTicket");
+        if(!inBetween(order.getDate(), trip.getTripDates())){
+            throw new CheckedException(ErrorCode.NO_TRIP_ON_THIS_DATE);
         }
 
-        // REVU а мест свободных хватит ? Давайте это обсудим голосом
+        if(clientDao.takeSeats(order) == 0){
+            throw new CheckedException(ErrorCode.NO_FREE_PLACES);
+        }
+
         clientDao.insertOrder(order);
 
-        // REVU а это здесь зачем ? При добавлении ордера места не выделяют
-        List<Integer> freeSeats = clientDao.getFreeSeats(order);
+        Place place = new Place();
+        place.setTripId(clientDao.getIdTripDate(order));
+        place.setOrder(order);
 
         for(Passenger passenger : order.getPassengers()){
-            Place place = new Place();
-
-            // REVU А Вы уверены, что оно свободно ? А вдруг его успел занять другой заказ между
-            // clientDao.getFreeSeats и текущим местом кода ?
-            place.setPlaceNumber(freeSeats.get(0));
-            freeSeats.remove(0);
-
-            place.setOrder(order);
             place.setPassenger(passenger);
 
-            clientDao.takeSeat(place);
+            List<Integer> freeSeats = clientDao.getFreeSeats(order);
+            Iterator<Integer> seatIterator = freeSeats.listIterator();
+
+            do {
+                place.setPlaceNumber(seatIterator.next());
+                LOGGER.info("User-" + client.getUserType() + " " + client.getLogin()
+                        + " register passenger on trip " + trip.getFromStation() + " to " + trip.getToStation() +
+                " on date " + order.getDate() + " on place " + place.getPlaceNumber());
+            } while(clientDao.takeSeat(place) == 0);
         }
 
         OrderTicketDtoResponse response = OrderMapstructMapper.INSTANCE.toDtoResponse(order);
@@ -161,43 +130,46 @@ public class ClientService extends ServiceBase{
         response.setPassengers(passengerDtoResponses);
         response.setTotalPrice(order.getPassengersNumber() * order.getTrip().getPrice());
 
-        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " ordered the trip from " + trip.getFromStation() + " to " + trip.getToStation());
+        LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " ordered the trip from " + trip.getFromStation() + " to " + trip.getToStation());
         return response;
     }
 
     public CancelOrderDtoResponse cancelOrder(String cookieValue, String orderId) {
-        User user = userDao.getBySession(cookieValue);
-        String userType = userDao.getUserType(user);
+        Client client = getClient(cookieValue);
 
-        if(userType.equals("admin")){
-            throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "cancelOrder");
-        }
         int idOrder = Integer.parseInt(orderId);
 
         Order order = userDao.getOrderById(idOrder);
 
         if(order == null){
-            throw new BusCompanyException(ErrorCode.ORDER_NOT_EXISTS, "order");
+            throw new CheckedException(ErrorCode.ORDER_NOT_EXISTS);
+        }
+
+        if(order.getClient().getId() != client.getId()) {
+            throw new CheckedException(ErrorCode.NOT_CLIENT_ORDER);
         }
 
         clientDao.cancelOrder(idOrder);
 
-        LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " canceled his order to trip from " + order.getTrip().getFromStation() + " to " + order.getTrip().getToStation());
+        LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " canceled his order to trip from "
+                + order.getTrip().getFromStation() + " to " + order.getTrip().getToStation());
         return new CancelOrderDtoResponse();
     }
 
     public GetFreePlacesDtoResponse getFreePlaces(String cookieValue, String orderId) {
-        User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
-
-        if(userType.equals("admin")){
-            throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "getFreePlaces");
+        try{
+            Integer.parseInt(orderId);
         }
+        catch (NumberFormatException ex){
+            throw new CheckedException(ErrorCode.INVALID_ID);
+        }
+
+        getClient(cookieValue);
 
         Order order = userDao.getOrderById(Integer.parseInt(orderId));
 
         if(order == null){
-            throw new BusCompanyException(ErrorCode.ORDER_NOT_EXISTS, "order");
+            throw new CheckedException(ErrorCode.ORDER_NOT_EXISTS);
         }
 
         List<Integer> freeSeats = clientDao.getFreeSeats(order);
@@ -206,17 +178,12 @@ public class ClientService extends ServiceBase{
     }
 
     public ChooseSeatDtoResponse choosePlace(String cookieValue, ChooseSeatDtoRequest request) {
-        User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
-
-        if(userType.equals("admin")){
-            throw new BusCompanyException(ErrorCode.OPERATION_NOT_ALLOWED, "chooseSeat");
-        }
+        getClient(cookieValue);
 
         Order order = userDao.getOrderById(request.getOrderId());
 
         if(order == null){
-            throw new BusCompanyException(ErrorCode.ORDER_NOT_EXISTS, "choosePlace");
+            throw new CheckedException(ErrorCode.ORDER_NOT_EXISTS);
         }
 
         Passenger passenger = order.getPassenger(request.getFirstName(), request.getLastName(), request.getPassport());
@@ -227,8 +194,14 @@ public class ClientService extends ServiceBase{
             clientDao.insertPassenger(order, passenger);
         }
 
+        Place place = new Place();
+        place.setPlaceNumber(request.getPlace());
+        place.setOrder(order);
+        place.setTripId(order.getTrip().getId());
+
         if(order.containsPassenger(passenger)){
-            clientDao.changeSeat(passenger, request.getPlace());
+            place.setPassenger(passenger);
+            clientDao.changeSeat(place);
         }
 
         String ticket = "Билет " + request.getOrderId() + "_" + request.getPlace();

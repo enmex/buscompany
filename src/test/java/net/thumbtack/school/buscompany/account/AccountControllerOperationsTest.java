@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -46,7 +44,7 @@ public class AccountControllerOperationsTest extends BaseTest {
 
         MvcResult result = httpGet("/api/accounts", adminCookie);
 
-        GetAdminProfileDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetAdminProfileDtoResponse.class);
+        GetAdminProfileDtoResponse response = getContent(result, GetAdminProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Михаил", response.getFirstName());
@@ -62,7 +60,7 @@ public class AccountControllerOperationsTest extends BaseTest {
 
         MvcResult result = httpGet("/api/accounts", clientCookie);
 
-        GetClientProfileDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetClientProfileDtoResponse.class);
+        GetClientProfileDtoResponse response = getContent(result, GetClientProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Михаил", response.getFirstName());

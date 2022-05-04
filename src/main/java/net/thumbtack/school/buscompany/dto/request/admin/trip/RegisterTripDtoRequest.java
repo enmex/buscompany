@@ -5,11 +5,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.thumbtack.school.buscompany.validation.Date;
+import net.thumbtack.school.buscompany.validation.DatesOrSchedule;
+import net.thumbtack.school.buscompany.validation.Schedule;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 
 import java.util.List;
 
+@DatesOrSchedule
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -28,13 +33,11 @@ public class RegisterTripDtoRequest {
     @Date
     private String duration;
     @NotNull
+    @Positive
     private int price;
 
-    // REVU а вот тут тоже нужна валидация
-    // либо schedule!=null, либо dates!=null, но не оба
-    // надо проверить
-    // делается кастомными валидаторами на класс в целом
-    //https://www.baeldung.com/spring-mvc-custom-validator
+    @Valid
+    @Schedule
     private ScheduleDtoRequest schedule;
 
     @Date(style = "yyyy-MM-dd")

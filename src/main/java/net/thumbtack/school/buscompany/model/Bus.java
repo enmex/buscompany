@@ -2,10 +2,6 @@ package net.thumbtack.school.buscompany.model;
 
 import lombok.*;
 
-import java.util.Objects;
-
-@AllArgsConstructor
-@RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -15,4 +11,8 @@ public class Bus {
     @NonNull
     private String busName;
     private int placeCount;
+
+    public Bus(int id){
+        this.id = id;
+    }
 }

@@ -1,6 +1,5 @@
 package net.thumbtack.school.buscompany.validation;
 
-import com.mysql.cj.jdbc.util.BaseBugReport;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,8 @@
 package net.thumbtack.school.buscompany.model;
 
-
 import lombok.*;
 
-import java.util.Objects;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,9 +14,12 @@ public class Client extends User{
     private String email;
     @NonNull
     private String phone;
-    // REVU а не добавить ли List<Order> ?
 
-    public Client(String firstName, String lastName, String patronymic, String login, String password) {
-        super(0, firstName, lastName, patronymic, login, password, "client");
+    @NonNull
+    private List<Order> orders;
+
+    public Client(String firstName, String lastName, String patronymic, String login, String password, List<Order> orders) {
+        super(0, firstName, lastName, patronymic, login, password, UserType.CLIENT);
+        this.orders = orders;
     }
 }

@@ -3,6 +3,9 @@ package net.thumbtack.school.buscompany.mapper.mybatis;
 import net.thumbtack.school.buscompany.model.User;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+
 public interface UserMybatisMapper {
 
     @Insert("INSERT INTO `user` (firstname, lastname, patronymic, login, `password`)" +
@@ -10,13 +13,8 @@ public interface UserMybatisMapper {
     @Options(useGeneratedKeys = true, keyProperty = "user.id")
     void insert(@Param("user") User user);
 
-    @Insert("INSERT INTO `session` (id_user, uuid) VALUES (#{user.id}, #{uuid})")
-    // REVU insertSession
-    // open - открыть что-то уже существующее
-    void openSession(@Param("user") User user, @Param("uuid") String uuid);
-
-    @Select("SELECT id_user FROM `session` WHERE id_user = #{user.id}")
-    String findUserInSession(@Param("user") User user);
+    @Insert("INSERT INTO `session` (id_user, uuid, last_time_active) VALUES (#{user.id}, #{uuid}, CURRENT_TIME())")
+    void insertSession(@Param("user") User user, @Param("uuid") String uuid);
 
     @Delete("DELETE FROM `session` WHERE uuid = #{uuid}")
     void closeSession(@Param("uuid") String uuid);
@@ -34,4 +32,10 @@ public interface UserMybatisMapper {
 
     @Delete("DELETE FROM `user`")
     void clear();
+
+    @Delete("DELETE FROM `session` WHERE DATEDIFF(CURRENT_TIME(), last_time_active) > TIME_TO_SEC(#{userIdleTimeout})")
+    void clearSessions(@Param("userIdleTimeout") int userIdleTimeout);
+
+    @Update("UPDATE `session` SET last_time_active = CURRENT_TIME() WHERE uuid = #{uuid}")
+    void updateSession(@Param("uuid") String uuid);
 }

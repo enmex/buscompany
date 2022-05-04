@@ -2,19 +2,17 @@ package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.AdminDao;
 
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
 
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.time.LocalDate;
 import java.util.List;
 
 public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
 
     @Override
-    public List<Client> getAllClients() throws BusCompanyException {
+    public List<Client> getAllClients() throws CheckedException {
         List<Client> clients;
         try(SqlSession session = getSession()){
             try{
@@ -22,7 +20,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -30,24 +28,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public void registerBus(Bus bus) throws BusCompanyException {
-        try(SqlSession session = getSession()){
-            try{
-                getBusMapper(session).insert(bus);
-            }
-            catch(RuntimeException ex){
-                session.rollback();
-                if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new BusCompanyException(ErrorCode.DUPLICATE_BUS);
-                }
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
-            }
-            session.commit();
-        }
-    }
-
-    @Override
-    public List<Bus> getAllBuses() throws BusCompanyException {
+    public List<Bus> getAllBuses() throws CheckedException {
         List<Bus> buses;
         try(SqlSession session = getSession()){
             try{
@@ -55,7 +36,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -63,26 +44,26 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public void registerTrip(Trip trip) throws BusCompanyException {
+    public void registerTrip(Trip trip) throws CheckedException {
         try(SqlSession session = getSession()){
             try{
                 getTripMapper(session).registerTrip(trip);
 
-                for(LocalDate date : trip.getDates()){
-                    getTripMapper(session).insertTripDate(trip, date);
+                for(TripDate tripDate : trip.getTripDates()){
+                    getTripMapper(session).insertTripDate(trip, tripDate);
                 }
             }
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
     }
 
     @Override
-    public boolean containsBus(String busName) throws BusCompanyException {
+    public boolean containsBus(String busName) throws CheckedException {
         boolean containsBus;
         try(SqlSession session = getSession()){
             try{
@@ -90,7 +71,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -98,19 +79,19 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public void updateTrip(Trip trip) throws BusCompanyException {
+    public void updateTrip(Trip trip) throws CheckedException {
         try(SqlSession session = getSession()){
             try{
                 getTripMapper(session).updateTrip(trip);
                 getTripMapper(session).deleteTripDates(trip);
 
-                for(LocalDate date : trip.getDates()){
-                    getTripMapper(session).insertTripDate(trip, date);
+                for(TripDate tripDate : trip.getTripDates()){
+                    getTripMapper(session).insertTripDate(trip, tripDate);
                 }
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -124,7 +105,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -138,7 +119,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -152,7 +133,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -166,7 +147,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -181,7 +162,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -194,17 +175,29 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             try{
                 int placeCount = bus.getPlaceCount();
 
-                for(LocalDate date : trip.getDates()){
-                    int idTripDate = getTripMapper(session).getIdTripDateUsingTripAndDate(trip, date);
-
+                for(TripDate tripDate : trip.getTripDates()){
                     for(int placeNumber = 0; placeNumber < placeCount; placeNumber++){
-                        getTripMapper(session).registerPlace(idTripDate, placeNumber);
+                        getTripMapper(session).registerPlace(tripDate.getId(), placeNumber);
                     }
                 }
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR, "registerPlaces");
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+    }
+
+    @Override
+    public void registerBus(Bus bus) {
+        try(SqlSession session = getSession()){
+            try {
+                getBusMapper(session).insert(bus);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }

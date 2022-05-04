@@ -9,11 +9,9 @@ import javax.validation.ConstraintValidatorContext;
 public class PhoneValidator extends BaseValidator implements ConstraintValidator<Phone, String> {
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
-        if (s == null){
+        if (s == null || s.equals("")){
             return false;
         }
-
-
 
         String number = s.replaceAll("-", "");
         if(number.startsWith("+")){
@@ -30,10 +28,8 @@ public class PhoneValidator extends BaseValidator implements ConstraintValidator
             return false;
         }
 
-
-
         if(number.length() != 11){
-            customMessageForValidation(constraintValidatorContext, "Неверный длина записи номера телефона");
+            customMessageForValidation(constraintValidatorContext, "Неверная длина записи номера телефона");
             return false;
         }
 

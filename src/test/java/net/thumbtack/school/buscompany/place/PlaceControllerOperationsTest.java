@@ -15,7 +15,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,18 +25,18 @@ public class PlaceControllerOperationsTest extends BaseTest {
     @Test
     public void testGetFreePlaces() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class).getTripId();
+        int tripId = getContent(registerDatesTrip(cookie), RegisterTripDtoResponse.class).getTripId();
         httpPost("/api/trips/" + tripId + "/approve", cookie);
         logout(cookie);
 
         Cookie client = registerClient().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        int orderId = gson.fromJson(registerOrder(client, tripId, "2022-10-04").getResponse().getContentAsString(StandardCharsets.UTF_8), OrderTicketDtoResponse.class)
+        int orderId = getContent(registerOrder(client, tripId, "2022-10-04"), OrderTicketDtoResponse.class)
                 .getOrderId();
 
         MvcResult result = httpGet("/api/places/" + orderId, client);
 
-        GetFreePlacesDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetFreePlacesDtoResponse.class);
+        GetFreePlacesDtoResponse response = getContent(result, GetFreePlacesDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(49, response.getPlaces().size());
         assertFalse(response.getPlaces().contains(0));
@@ -46,13 +45,13 @@ public class PlaceControllerOperationsTest extends BaseTest {
     @Test
     public void testChoosePlace() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class).getTripId();
+        int tripId = getContent(registerDatesTrip(cookie), RegisterTripDtoResponse.class).getTripId();
         httpPost("/api/trips/" + tripId + "/approve", cookie);
         logout(cookie);
 
         Cookie client = registerClient().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        int orderId = gson.fromJson(registerOrder(client, tripId, "2022-10-04").getResponse().getContentAsString(StandardCharsets.UTF_8), OrderTicketDtoResponse.class)
+        int orderId = getContent(registerOrder(client, tripId, "2022-10-04"), OrderTicketDtoResponse.class)
                 .getOrderId();
 
         ChooseSeatDtoRequest request = new ChooseSeatDtoRequest(
@@ -62,7 +61,7 @@ public class PlaceControllerOperationsTest extends BaseTest {
         MvcResult result = httpPost("/api/places", client, gson.toJson(request));
         assertEquals(200, result.getResponse().getStatus());
 
-        ChooseSeatDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ChooseSeatDtoResponse.class);
+        ChooseSeatDtoResponse response = getContent(result, ChooseSeatDtoResponse.class);
         assertEquals(orderId, response.getOrderId());
         assertEquals("Иван", response.getFirstName());
         assertEquals("Смирнов", response.getLastName());

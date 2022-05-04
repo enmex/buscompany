@@ -1,6 +1,6 @@
 package net.thumbtack.school.buscompany.dao;
 
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import net.thumbtack.school.buscompany.model.Bus;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Trip;
@@ -13,16 +13,15 @@ import java.util.Set;
 
 @Component
 public interface UserDao {
-    String register(User user) throws BusCompanyException;
-    void unregister(User user) throws BusCompanyException;
-    User getByLogin(String login) throws BusCompanyException;
-    User getBySession(String uuid) throws BusCompanyException;
-    String openSession(User user) throws BusCompanyException;
-    void closeSession(String uuid) throws BusCompanyException;
-    boolean isOnline(User user) throws BusCompanyException;
-    String getUserType(User user) throws BusCompanyException;
-    void updateUser(User user) throws BusCompanyException;
-    Trip getTripById(int tripId) throws BusCompanyException;
+    String register(User user) throws CheckedException;
+    void unregister(User user) throws CheckedException;
+    User getByLogin(String login) throws CheckedException;
+    User getBySession(String uuid) throws CheckedException;
+    String insertSession(User user) throws CheckedException;
+    void closeSession(String uuid) throws CheckedException;
+    String getUserType(User user) throws CheckedException;
+    void updateUser(User user) throws CheckedException;
+    Trip getTripById(int tripId) throws CheckedException;
     List<Trip> getTripsFromStation(String fromStation);
     List<Trip> getTripsToStation(String toStation);
     List<Trip> getTripsByBus(String busName);
@@ -37,5 +36,7 @@ public interface UserDao {
     List<Order> getOrdersToDate(LocalDate toDate);
     List<Order> getOrdersByClientId(int clientId);
     Order getOrderById(int orderId);
-    Bus getBus(String busName) throws BusCompanyException;
+    Bus getBus(String busName) throws CheckedException;
+    void updateSession(String uuid);
+    void clearSessions(int userIdleTimeout);
 }

@@ -7,18 +7,15 @@ import net.thumbtack.school.buscompany.dto.response.client.OrderTicketDtoRespons
 import net.thumbtack.school.buscompany.dto.response.common.trip.GetOrdersDtoResponse;
 import net.thumbtack.school.buscompany.service.ClientService;
 import net.thumbtack.school.buscompany.service.UserService;
-import net.thumbtack.school.buscompany.validation.Date;
-import net.thumbtack.school.buscompany.validation.Id;
-import org.springframework.format.annotation.NumberFormat;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
 
 import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/orders")
+@Validated
 public class OrderController {
     private final UserService userService;
     private final ClientService clientService;
@@ -29,9 +26,9 @@ public class OrderController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OrderTicketDtoResponse orderTicket(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                              @RequestBody @Valid OrderTicketDtoRequest request){
-        return clientService.orderTicket(cookieValue, request);
+    public OrderTicketDtoResponse orderTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+                                            @RequestBody @Valid OrderTicketDtoRequest request){
+        return clientService.orderTrip(cookieValue, request);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,15 +36,15 @@ public class OrderController {
                                              @RequestParam(required = false) String fromStation,
                                              @RequestParam(required = false) String toStation,
                                              @RequestParam(required = false) String busName,
-                                             @RequestParam(required = false) @Date(style = "yyyy-MM-dd") @Valid String fromDate,
-                                             @RequestParam(required = false) @Date(style = "yyyy-MM-dd") @Valid String toDate,
-                                             @RequestParam(required = false) @NumberFormat @Valid String clientId) throws ParseException {
+                                             @RequestParam(required = false) String fromDate,
+                                             @RequestParam(required = false) String toDate,
+                                             @RequestParam(required = false) String clientId) {
         return userService.getAllOrders(cookieValue, fromStation, toStation, busName, fromDate, toDate, clientId);
     }
 
     @DeleteMapping(value = "/{orderId}")
     public CancelOrderDtoResponse cancelOrder(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                              @PathVariable @Id @Valid String orderId){
+                                              @PathVariable String orderId){
         return clientService.cancelOrder(cookieValue, orderId);
     }
 }

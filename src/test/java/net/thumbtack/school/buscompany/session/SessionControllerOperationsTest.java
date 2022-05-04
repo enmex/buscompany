@@ -1,7 +1,7 @@
 package net.thumbtack.school.buscompany.session;
 
 import net.thumbtack.school.buscompany.BaseTest;
-import net.thumbtack.school.buscompany.controller.AdminController;
+import net.thumbtack.school.buscompany.controller.SessionController;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +14,7 @@ import javax.servlet.http.Cookie;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = AdminController.class)
+@WebMvcTest(controllers = SessionController.class)
 public class SessionControllerOperationsTest extends BaseTest {
 
     @Test

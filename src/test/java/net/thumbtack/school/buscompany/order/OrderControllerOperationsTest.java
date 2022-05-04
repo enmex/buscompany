@@ -14,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +24,7 @@ public class OrderControllerOperationsTest extends BaseTest {
     @Test
     public void testOrderTicket() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class).getTripId();
+        int tripId = getContent(registerDatesTrip(cookie), RegisterTripDtoResponse.class).getTripId();
         httpPost("/api/trips/" + tripId + "/approve", cookie);
         logout(cookie);
 
@@ -33,8 +32,7 @@ public class OrderControllerOperationsTest extends BaseTest {
 
         MvcResult result = registerOrder(client, tripId, "2022-10-04");
 
-        OrderTicketDtoResponse response = gson.fromJson(result.getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), OrderTicketDtoResponse.class);
+        OrderTicketDtoResponse response = getContent(result, OrderTicketDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(500, response.getTotalPrice());
         assertEquals(1, response.getPassengers().size());
@@ -44,13 +42,13 @@ public class OrderControllerOperationsTest extends BaseTest {
     @Test
     public void testCancelOrder() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class).getTripId();
+        int tripId = getContent(registerDatesTrip(cookie), RegisterTripDtoResponse.class).getTripId();
         httpPost("/api/trips/" + tripId + "/approve", cookie);
         logout(cookie);
 
         Cookie client = registerClient().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        int orderId = gson.fromJson(registerOrder(client, tripId, "2022-10-04").getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int orderId = getContent(registerOrder(client, tripId, "2022-10-04"),
                 OrderTicketDtoResponse.class).getOrderId();
 
         MvcResult result = httpDelete("/api/orders/" + orderId, client);
@@ -61,13 +59,13 @@ public class OrderControllerOperationsTest extends BaseTest {
     @Test
     public void testGetAllOrders() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripOmskTumenId = gson.fromJson(registerScheduleTrip(cookie, "Автобус", "Омск", "Тюмень", "08:00",
-                "24:00", "2022-05-06", "2022-06-06", "daily").getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripOmskTumenId = getContent(registerScheduleTrip(cookie, "Автобус", "Омск", "Тюмень", "08:00",
+                "24:00", "2022-05-06", "2022-06-06", "daily"),
                 RegisterTripDtoResponse.class).getTripId();
-        int tripMoscowPeterId = gson.fromJson(registerScheduleTrip(cookie, "Автобус", "Москва", "Петербург", "08:00",
-                        "24:00", "2022-01-06", "2022-03-06", "even").getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripMoscowPeterId = getContent(registerScheduleTrip(cookie, "Автобус", "Москва", "Петербург", "08:00",
+                        "24:00", "2022-01-06", "2022-03-06", "even"),
                 RegisterTripDtoResponse.class).getTripId();
-        int standartDatesTrip = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int standartDatesTrip = getContent(registerDatesTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         httpPost("/api/trips/" + tripOmskTumenId + "/approve", cookie);
@@ -77,7 +75,7 @@ public class OrderControllerOperationsTest extends BaseTest {
         MvcResult getAllOrdersAdmin = httpGet("/api/orders", cookie);
         assertEquals(200, getAllOrdersAdmin.getResponse().getStatus());
 
-        GetOrdersDtoResponse ordersAdmin = gson.fromJson(getAllOrdersAdmin.getResponse().getContentAsString(StandardCharsets.UTF_8), GetOrdersDtoResponse.class);
+        GetOrdersDtoResponse ordersAdmin = getContent(getAllOrdersAdmin, GetOrdersDtoResponse.class);
         assertEquals(0, ordersAdmin.getOrders().size());
 
         logout(cookie);
@@ -85,10 +83,10 @@ public class OrderControllerOperationsTest extends BaseTest {
 
         MvcResult resultClient1Register = registerClient();
         Cookie client1 = resultClient1Register.getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int idClient1 = gson.fromJson(resultClient1Register.getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterClientDtoResponse.class).getId();
+        int idClient1 = getContent(resultClient1Register, RegisterClientDtoResponse.class).getId();
 
         MvcResult result = httpGet("/api/orders", client1);
-        GetOrdersDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetOrdersDtoResponse.class);
+        GetOrdersDtoResponse response = getContent(result, GetOrdersDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(0, response.getOrders().size());
 
@@ -110,12 +108,12 @@ public class OrderControllerOperationsTest extends BaseTest {
 
         MvcResult getAllByAdmin = httpGet("/api/orders", admin);
 
-        GetOrdersDtoResponse getByAdmin = gson.fromJson(getAllByAdmin.getResponse().getContentAsString(StandardCharsets.UTF_8), GetOrdersDtoResponse.class);
+        GetOrdersDtoResponse getByAdmin = getContent(getAllByAdmin, GetOrdersDtoResponse.class);
         assertEquals(200, getAllByAdmin.getResponse().getStatus());
         assertEquals(6, getByAdmin.getOrders().size());
 
         MvcResult getAllByAdminClientId = httpGet("/api/orders?clientId=" + idClient1, admin);
-        GetOrdersDtoResponse getByAdminClientId = gson.fromJson(getAllByAdminClientId.getResponse().getContentAsString(StandardCharsets.UTF_8), GetOrdersDtoResponse.class);
+        GetOrdersDtoResponse getByAdminClientId = getContent(getAllByAdminClientId, GetOrdersDtoResponse.class);
         assertEquals(3, getByAdminClientId.getOrders().size());
         logout(admin);
 
@@ -124,7 +122,7 @@ public class OrderControllerOperationsTest extends BaseTest {
         MvcResult resultForClient = httpGet("/api/orders", client_mich);
         assertEquals(200, resultForClient.getResponse().getStatus());
 
-        GetOrdersDtoResponse responseClient = gson.fromJson(resultForClient.getResponse().getContentAsString(StandardCharsets.UTF_8), GetOrdersDtoResponse.class);
+        GetOrdersDtoResponse responseClient = getContent(resultForClient, GetOrdersDtoResponse.class);
 
         assertEquals(3, responseClient.getOrders().size());
     }

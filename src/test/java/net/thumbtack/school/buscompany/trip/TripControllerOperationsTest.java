@@ -1,8 +1,8 @@
 package net.thumbtack.school.buscompany.trip;
 
 import net.thumbtack.school.buscompany.BaseTest;
+import net.thumbtack.school.buscompany.controller.TripController;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
-import net.thumbtack.school.buscompany.dto.request.admin.trip.RegisterTripDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.admin.trip.ScheduleDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.admin.trip.UpdateTripDtoRequest;
 import net.thumbtack.school.buscompany.dto.response.admin.ApproveTripDtoResponse;
@@ -19,15 +19,13 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
 
-import java.nio.charset.StandardCharsets;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = Controller.class)
+@WebMvcTest(controllers = TripController.class)
 public class TripControllerOperationsTest extends BaseTest {
 
     @Test
@@ -35,7 +33,7 @@ public class TripControllerOperationsTest extends BaseTest {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
         MvcResult result = registerScheduleTrip(cookie);
-        RegisterTripDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class);
+        RegisterTripDtoResponse response = getContent(result, RegisterTripDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Автобус", response.getBus().getBusName());
         assertTrue(response.getBus().getPlaceCount() > 0);
@@ -52,7 +50,7 @@ public class TripControllerOperationsTest extends BaseTest {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
         MvcResult result = registerDatesTrip(cookie);
-        RegisterTripDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), RegisterTripDtoResponse.class);
+        RegisterTripDtoResponse response = getContent(result, RegisterTripDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Автобус", response.getBus().getBusName());
         assertTrue(response.getBus().getPlaceCount() > 0);
@@ -68,7 +66,7 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testUpdateTripWithSchedule() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerScheduleTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripId = getContent(registerScheduleTrip(cookie),
                                     RegisterTripDtoResponse.class).getTripId();
 
         ScheduleDtoRequest scheduleDtoRequest = new ScheduleDtoRequest(
@@ -87,7 +85,7 @@ public class TripControllerOperationsTest extends BaseTest {
         request.setSchedule(scheduleDtoRequest);
 
         MvcResult result = httpPut("/api/trips/" + tripId, cookie, gson.toJson(request));
-        UpdateTripDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), UpdateTripDtoResponse.class);
+        UpdateTripDtoResponse response = getContent(result, UpdateTripDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(1000, response.getPrice());
@@ -106,7 +104,7 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testUpdateTripWithDates() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripId = getContent(registerDatesTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         List<String> dates = new ArrayList<>();
@@ -123,7 +121,7 @@ public class TripControllerOperationsTest extends BaseTest {
         request.setDates(dates);
 
         MvcResult result = httpPut("/api/trips/" + tripId, cookie, gson.toJson(request));
-        UpdateTripDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), UpdateTripDtoResponse.class);
+        UpdateTripDtoResponse response = getContent(result, UpdateTripDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(1000, response.getPrice());
@@ -140,11 +138,11 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testGetTripWithScheduleInfo() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerScheduleTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripId = getContent(registerScheduleTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         MvcResult result = httpGet("/api/trips/" + tripId, cookie);
-        GetTripProfileDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripProfileDtoResponse.class);
+        GetTripProfileDtoResponse response = getContent(result, GetTripProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Автобус", response.getBus().getBusName());
@@ -159,11 +157,11 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testGetTripWithDatesInfo() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int tripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int tripId = getContent(registerDatesTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         MvcResult result = httpGet("/api/trips/" + tripId, cookie);
-        GetTripProfileDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripProfileDtoResponse.class);
+        GetTripProfileDtoResponse response = getContent(result, GetTripProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("Автобус", response.getBus().getBusName());
@@ -178,9 +176,9 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testDeleteTrip() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int datesTripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int datesTripId = getContent(registerDatesTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
-        int scheduleTripId = gson.fromJson(registerScheduleTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int scheduleTripId = getContent(registerScheduleTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         MvcResult deleteScheduleTrip = httpDelete("/api/trips/" + scheduleTripId, cookie);
@@ -193,16 +191,16 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testApproveTrip() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        int datesTripId = gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int datesTripId = getContent(registerDatesTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
-        int scheduleTripId = gson.fromJson(registerScheduleTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
+        int scheduleTripId = getContent(registerScheduleTrip(cookie),
                 RegisterTripDtoResponse.class).getTripId();
 
         MvcResult approveDatesTrip = httpPost("/api/trips/" + datesTripId + "/approve", cookie);
         MvcResult approveScheduleTrip = httpPost("/api/trips/" + scheduleTripId + "/approve", cookie);
 
-        ApproveTripDtoResponse response1 = gson.fromJson(approveDatesTrip.getResponse().getContentAsString(StandardCharsets.UTF_8), ApproveTripDtoResponse.class);
-        ApproveTripDtoResponse response2 = gson.fromJson(approveScheduleTrip.getResponse().getContentAsString(StandardCharsets.UTF_8), ApproveTripDtoResponse.class);
+        ApproveTripDtoResponse response1 = getContent(approveDatesTrip, ApproveTripDtoResponse.class);
+        ApproveTripDtoResponse response2 = getContent(approveScheduleTrip, ApproveTripDtoResponse.class);
 
         assertEquals(200, approveDatesTrip.getResponse().getStatus());
         assertEquals(200, approveScheduleTrip.getResponse().getStatus());
@@ -213,10 +211,10 @@ public class TripControllerOperationsTest extends BaseTest {
     @Test
     public void testGetAllTrips() throws Exception {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
-        gson.fromJson(registerDatesTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                RegisterTripDtoResponse.class).getTripId();
-        gson.fromJson(registerScheduleTrip(cookie).getResponse().getContentAsString(StandardCharsets.UTF_8),
-                RegisterTripDtoResponse.class).getTripId();
+        getContent(registerDatesTrip(cookie),
+                RegisterTripDtoResponse.class);
+        getContent(registerScheduleTrip(cookie),
+                RegisterTripDtoResponse.class);
 
         List<String> datesStrings = new ArrayList<>();
         datesStrings.add("2022-01-01");
@@ -232,15 +230,15 @@ public class TripControllerOperationsTest extends BaseTest {
         MvcResult getByDuration = httpGet("/api/trips?start=11:00", cookie);
         MvcResult getFromDate = httpGet("/api/trips?fromDate=2022-01-01", cookie);
         MvcResult getToDate = httpGet("/api/trips?toDate=2022-01-02", cookie);
-
-        GetTripsDtoResponse response = gson.fromJson(getAll.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseByBus = gson.fromJson(getByBus.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseFromStation = gson.fromJson(getFromStation.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseToStation = gson.fromJson(getToStation.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseStart = gson.fromJson(getByStart.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseDuration = gson.fromJson(getByDuration.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseFromDate = gson.fromJson(getFromDate.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
-        GetTripsDtoResponse responseToDate = gson.fromJson(getToDate.getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
+        
+        GetTripsDtoResponse response = getContent(getAll, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseByBus = getContent(getByBus, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseFromStation = getContent(getFromStation, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseToStation = getContent(getToStation, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseStart = getContent(getByStart, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseDuration = getContent(getByDuration, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseFromDate = getContent(getFromDate, GetTripsDtoResponse.class);
+        GetTripsDtoResponse responseToDate = getContent(getToDate, GetTripsDtoResponse.class);
 
         assertEquals(200, getAll.getResponse().getStatus());
         assertEquals(200, getByBus.getResponse().getStatus());
@@ -263,7 +261,7 @@ public class TripControllerOperationsTest extends BaseTest {
 
         Cookie client = registerClient().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        GetTripsDtoResponse getAllResponseClient = gson.fromJson(httpGet("/api/trips", client).getResponse().getContentAsString(StandardCharsets.UTF_8), GetTripsDtoResponse.class);
+        GetTripsDtoResponse getAllResponseClient = getContent(httpGet("/api/trips", client), GetTripsDtoResponse.class);
 
         assertEquals(0, getAllResponseClient.getTrips().size());
     }

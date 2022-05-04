@@ -17,8 +17,10 @@ public class RegisterClientDtoRequest {
     @Name
     private String firstName;
     @NotNull
+    @Name
     @NonNull
     private String lastName;
+    @Name
     private String patronymic;
     @NotNull
     @NonNull

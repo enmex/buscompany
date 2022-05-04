@@ -9,6 +9,9 @@ import net.thumbtack.school.buscompany.dto.request.client.PassengerDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.common.login.LoginDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.common.register.RegisterAdminDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.common.register.RegisterClientDtoRequest;
+import net.thumbtack.school.buscompany.dto.response.error.ErrorDtoResponse;
+import net.thumbtack.school.buscompany.model.Passenger;
+import net.thumbtack.school.buscompany.service.GlobalErrorHandler;
 import net.thumbtack.school.buscompany.util.MyBatisUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,11 +23,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 public class BaseTest {
@@ -33,8 +39,7 @@ public class BaseTest {
     @Autowired
     protected MockMvc mvc;
 
-    @Autowired
-    protected Gson gson;
+    protected static Gson gson = new Gson();
 
     @BeforeAll
     public static void setUp(){
@@ -51,6 +56,17 @@ public class BaseTest {
     @AfterEach
     public void clearDatabase() throws Exception {
         mvc.perform(post("/api/debug/clear").contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
+    protected static <T> T getContent(MvcResult result, Class<T> clazz) throws UnsupportedEncodingException {
+        String res = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        return gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), clazz);
+    }
+
+    protected MvcResult httpPost(String url) throws Exception {
+        return mvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding(Charset.defaultCharset())).andReturn();
     }
 
     protected MvcResult httpPost(String url, String json) throws Exception {
@@ -78,6 +94,13 @@ public class BaseTest {
     protected MvcResult httpPut(String url, Cookie cookie, String json) throws Exception {
         return mvc.perform(put(url)
                 .cookie(cookie)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding(Charset.defaultCharset())
+                .content(json)).andReturn();
+    }
+
+    protected MvcResult httpPut(String url, String json) throws Exception {
+        return mvc.perform(put(url)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .characterEncoding(Charset.defaultCharset())
                 .content(json)).andReturn();
@@ -113,6 +136,13 @@ public class BaseTest {
                 .content(gson.toJson(new EmptyDtoRequest()))).andReturn();
     }
 
+    protected MvcResult httpDelete(String url) throws Exception {
+        return mvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .characterEncoding(Charset.defaultCharset())
+                .content("{}")).andReturn();
+    }
+
     protected MvcResult registerOrder(Cookie cookie, int tripId, String date) throws Exception {
         PassengerDtoRequest passenger = new PassengerDtoRequest();
         passenger.setFirstName("Иван");
@@ -122,6 +152,14 @@ public class BaseTest {
         List<PassengerDtoRequest> passengers = new ArrayList<>();
         passengers.add(passenger);
 
+        OrderTicketDtoRequest request = new OrderTicketDtoRequest(
+                tripId, date, passengers
+        );
+
+        return httpPost("/api/orders", cookie, gson.toJson(request));
+    }
+
+    protected MvcResult registerOrder(Cookie cookie, int tripId, String date, List<PassengerDtoRequest> passengers) throws Exception {
         OrderTicketDtoRequest request = new OrderTicketDtoRequest(
                 tripId, date, passengers
         );
@@ -198,6 +236,16 @@ public class BaseTest {
         return httpPost("/api/admins", gson.toJson(request));
     }
 
+    protected MvcResult registerAdmin(String firstName, String lastName, String patronymic, String position, String login, String password) throws Exception {
+        RegisterAdminDtoRequest request = new RegisterAdminDtoRequest(
+                firstName, lastName, patronymic, position, login, password
+        );
+        String json = gson.toJson(request);
+
+
+        return httpPost("/api/admins", gson.toJson(request));
+    }
+
     protected MvcResult logout(Cookie cookie) throws Exception {
         return httpDelete("/api/sessions", cookie);
     }
@@ -216,6 +264,7 @@ public class BaseTest {
         RegisterClientDtoRequest request = new RegisterClientDtoRequest(
                 firstName, lastName, patronymic, email, phone, login, password
         );
+        String json = gson.toJson(request);
 
         return httpPost("/api/clients", gson.toJson(request));
     }
@@ -225,6 +274,23 @@ public class BaseTest {
         LoginDtoRequest request = new LoginDtoRequest(login, password);
 
         return httpPost("/api/sessions", gson.toJson(request));
+    }
+
+    protected void assertBadRequest(MvcResult result, String expectedErrorCode) throws UnsupportedEncodingException {
+        assertEquals(400, result.getResponse().getStatus());
+        ErrorDtoResponse response = getContent(result, ErrorDtoResponse.class);
+
+        assertEquals(1, response.getErrors().size());
+
+        GlobalErrorHandler.Error error = response.getErrors().get(0);
+        assertEquals(expectedErrorCode, error.getErrorCode());
+    }
+
+    protected void assertInvalidRequest(MvcResult result, int errorsNumber) throws UnsupportedEncodingException {
+        assertEquals(400, result.getResponse().getStatus());
+        ErrorDtoResponse response = getContent(result, ErrorDtoResponse.class);
+
+        assertEquals(errorsNumber, response.getErrors().size());
     }
 
 }

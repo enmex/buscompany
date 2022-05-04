@@ -1,9 +1,6 @@
 package net.thumbtack.school.buscompany.mapper.mybatis;
 
-import net.thumbtack.school.buscompany.model.Order;
-import net.thumbtack.school.buscompany.model.Passenger;
-import net.thumbtack.school.buscompany.model.Schedule;
-import net.thumbtack.school.buscompany.model.Trip;
+import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
@@ -12,15 +9,16 @@ import java.util.List;
 public interface TripMybatisMapper {
 
     @Insert("INSERT INTO trip (bus_name, from_station, to_station, `start`, duration, price) " +
-            "VALUES (#{trip.busName}, #{trip.fromStation}, " +
+            "VALUES (#{trip.bus.busName}, #{trip.fromStation}, " +
                     "#{trip.toStation}, #{trip.start}, #{trip.duration}, #{trip.price})")
     @Options(useGeneratedKeys = true, keyProperty = "trip.id")
     void registerTrip(@Param("trip") Trip trip);
 
-    @Insert("INSERT INTO trip_date (id_trip, `date`) VALUES (#{datesTrip.id}, #{date})")
-    void insertTripDate(@Param("datesTrip") Trip trip, @Param("date") LocalDate date);
+    @Insert("INSERT INTO trip_date (id_trip, `date`, free_places) VALUES (#{trip.id}, #{tripDate.date}, #{trip.bus.placeCount})")
+    @Options(useGeneratedKeys = true, keyProperty = "tripDate.id")
+    void insertTripDate(@Param("trip") Trip trip, @Param("tripDate") TripDate tripDate);
 
-    @Update("UPDATE trip SET bus_name = #{trip.busName}, from_station = #{trip.fromStation}, to_station = #{trip.toStation}" +
+    @Update("UPDATE trip SET bus_name = #{trip.bus.busName}, from_station = #{trip.fromStation}, to_station = #{trip.toStation}" +
             ", `start` = #{trip.start}, duration = #{trip.duration}, " +
             "price = #{trip.price} WHERE id = #{trip.id}")
     void updateTrip(@Param("trip") Trip trip);
@@ -55,14 +53,15 @@ public interface TripMybatisMapper {
     @Select("SELECT id FROM trip_date WHERE id_trip = #{order.trip.id} AND `date` = #{order.date}")
     int getIdTripDateUsingOrder(@Param("order") Order order);
 
-    @Select("SELECT id FROM trip_date WHERE id_trip = #{trip.id} AND `date` = #{date}")
-    int getIdTripDateUsingTripAndDate(@Param("trip") Trip trip, @Param("date") LocalDate date);
-
-    @Insert("INSERT INTO occupied_seats (id_trip, place_number) VALUES(#{idTripDate}, #{placeNumber})")
+    @Insert("INSERT INTO seats (id_trip_date, place_number) VALUES(#{idTripDate}, #{placeNumber})")
     void registerPlace(@Param("idTripDate") int idTripDate, @Param("placeNumber") int placeNumber);
 
-    @Select("SELECT `date` FROM trip_date WHERE id_trip = #{trip.id}")
-    List<LocalDate> getDatesList(@Param("trip") Trip trip);
+    @Select("SELECT id, `date` FROM trip_date WHERE id_trip = #{trip.id}")
+    @Results({
+            @Result(column = "id", property = "id"),
+            @Result(column = "`date`", property = "date")
+    })
+    List<TripDate> getTripDatesList(@Param("trip") Trip trip);
 
     @Insert("INSERT INTO passenger (id_order, firstname, lastname, passport) VALUES (#{order.id}, #{p.firstName}, #{p.lastName}, #{p.passport})")
     @Options(useGeneratedKeys = true, keyProperty = "p.id")

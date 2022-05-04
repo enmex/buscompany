@@ -9,7 +9,7 @@ CREATE TABLE `user` (
     patronymic VARCHAR(50),
     login VARCHAR(50) NOT NULL,
     `password` VARCHAR(50) NOT NULL,
-	user_type ENUM('admin', 'client'),
+	user_type ENUM('ADMIN', 'CLIENT'),
     PRIMARY KEY (id),
     UNIQUE(login)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
@@ -17,12 +17,14 @@ CREATE TABLE `user` (
 CREATE TABLE `session` (
     id_user INT NOT NULL,
     uuid VARCHAR(60) NOT NULL,
+    last_time_active TIME NOT NULL,
     FOREIGN KEY (id_user) REFERENCES `user` (id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `admin` (
     id_user INT NOT NULL,
     position VARCHAR(100) NOT NULL,
+    PRIMARY KEY (id_user),
     FOREIGN KEY (id_user) REFERENCES `user`(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -30,6 +32,7 @@ CREATE TABLE `client` (
     id_user INT NOT NULL,
     email VARCHAR(100) NOT NULL,
     phone VARCHAR(50) NOT NULL,
+	PRIMARY KEY (id_user),
     FOREIGN KEY (id_user) REFERENCES `user`(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
@@ -58,6 +61,7 @@ CREATE TABLE trip_date (
 	id INT NOT NULL AUTO_INCREMENT,
     id_trip INT NOT NULL,
     `date` DATE NOT NULL,
+    free_places INT NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (id_trip) REFERENCES trip(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
@@ -65,10 +69,10 @@ CREATE TABLE trip_date (
 CREATE TABLE `order` (
 	id INT NOT NULL AUTO_INCREMENT,
     id_client INT NOT NULL,
-    id_trip INT NOT NULL,
+    id_trip_date INT NOT NULL,
     PRIMARY KEY(id),
     FOREIGN KEY(id_client) REFERENCES `user`(id) ON DELETE CASCADE,
-    FOREIGN KEY(id_trip) REFERENCES trip_date(id) ON DELETE CASCADE
+    FOREIGN KEY(id_trip_date) REFERENCES trip_date(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
 CREATE TABLE passenger (
@@ -81,12 +85,12 @@ CREATE TABLE passenger (
     FOREIGN KEY(id_order) REFERENCES `order`(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
-CREATE TABLE occupied_seats (
-    id_trip INT NOT NULL,
+CREATE TABLE seats (
+    id_trip_date INT NOT NULL,
     id_passenger INT,
     place_number INT NOT NULL,
     UNIQUE(id_passenger, place_number),
-    FOREIGN KEY (id_trip) REFERENCES trip_date (id) ON DELETE CASCADE,
+    FOREIGN KEY (id_trip_date) REFERENCES trip_date (id) ON DELETE CASCADE,
     FOREIGN KEY (id_passenger) REFERENCES passenger(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 

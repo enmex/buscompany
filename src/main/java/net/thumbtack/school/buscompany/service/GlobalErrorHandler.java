@@ -3,7 +3,7 @@ package net.thumbtack.school.buscompany.service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.thumbtack.school.buscompany.dto.response.error.ErrorDtoResponse;
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,16 +23,16 @@ public class GlobalErrorHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorDtoResponse handleValidation(MethodArgumentNotValidException ex){
         List<Error> errors = new ArrayList<>();
-        ex.getBindingResult().getFieldErrors().stream().forEach(
-                fieldError -> errors.add(new Error(fieldError.getCode(), fieldError.getField(), fieldError.getDefaultMessage()))
+        ex.getBindingResult().getAllErrors().stream().forEach(
+                error -> errors.add(new Error(error.getCode(), error.getObjectName(), error.getDefaultMessage()))
         );
         return new ErrorDtoResponse(errors);
     }
 
-    @ExceptionHandler(BusCompanyException.class)
+    @ExceptionHandler(CheckedException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ErrorDtoResponse handleBadClientRequests(BusCompanyException ex){
+    public ErrorDtoResponse handleBadClientRequests(CheckedException ex){
         List<Error> errors = new ArrayList<>();
         errors.add(new Error(ex.getErrorCode().toString(), ex.getField(), ex.getMessage()));
         return new ErrorDtoResponse(errors);

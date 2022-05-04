@@ -18,7 +18,12 @@ public class NameValidator extends BaseValidator implements ConstraintValidator<
             return true;
         }
 
-        if(s.matches("[^А-Яа-я]")){
+        if(s.equals("")){
+            customMessageForValidation(constraintValidatorContext, "Имя не может быть пустым");
+            return false;
+        }
+
+        if(s.matches("^[^А-Яа-я]*$")){
             customMessageForValidation(constraintValidatorContext, "Имя не должно содержать латинские буквы и прочие символы");
             return false;
         }

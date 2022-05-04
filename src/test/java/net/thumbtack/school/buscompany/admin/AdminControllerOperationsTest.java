@@ -13,7 +13,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,9 +23,7 @@ public class AdminControllerOperationsTest extends BaseTest {
     @Test
     public void testRegisterAdmin() throws Exception {
         MvcResult result = registerAdmin();
-        RegisterAdminDtoResponse response = gson.fromJson(result
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), RegisterAdminDtoResponse.class);
+        RegisterAdminDtoResponse response = getContent(result, RegisterAdminDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("admin", response.getUserType());
@@ -46,9 +43,7 @@ public class AdminControllerOperationsTest extends BaseTest {
         Cookie cookie = registerResult.getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
         MvcResult result = httpPut("/api/admins", cookie, gson.toJson(request));
-        UpdateAdminProfileDtoResponse response = gson.fromJson(result
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), UpdateAdminProfileDtoResponse.class);
+        UpdateAdminProfileDtoResponse response = getContent(result, UpdateAdminProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("admin", response.getUserType());

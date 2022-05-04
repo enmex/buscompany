@@ -2,7 +2,7 @@ package net.thumbtack.school.buscompany.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Arrays;
+import java.util.List;
 
 public class PeriodValidator extends BaseValidator implements ConstraintValidator<Period, String> {
     private final String daysOfWeek = "SunMonTueWenThuFriSat";
@@ -13,14 +13,19 @@ public class PeriodValidator extends BaseValidator implements ConstraintValidato
             return true;
         }
 
-        String[] days = s.split(",");
+        List<String> days = List.of(s.split(",\\s+"));
 
-        if(Arrays.stream(days).allMatch(str -> Integer.parseInt(str) >= 1 && Integer.parseInt(str) <= 31)){
-            return true;
+        if(days.stream().allMatch(daysOfWeek::contains)){
+            return days.stream().distinct().count() >= days.size();
         }
 
-        if(Arrays.stream(days).allMatch(daysOfWeek::contains)){
-            return true;
+        try {
+            if (days.stream().allMatch(str -> Integer.parseInt(str) >= 1 && Integer.parseInt(str) <= 31)) {
+                return days.stream().distinct().count() >= days.size();
+            }
+        }
+        catch (NumberFormatException ex){
+            return false;
         }
 
         return false;

@@ -2,10 +2,7 @@ package net.thumbtack.school.buscompany.validation;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -20,6 +17,10 @@ public class DateValidator extends BaseValidator implements ConstraintValidator<
 
     @Override
     public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
+        if(s == null){
+            return true;
+        }
+
         try {
             if(style.equals("HH:mm")) {
                 LocalTime.parse(s, DateTimeFormatter.ofPattern(style));

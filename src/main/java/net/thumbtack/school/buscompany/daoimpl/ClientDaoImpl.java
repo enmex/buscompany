@@ -1,7 +1,7 @@
 package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.ClientDao;
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Passenger;
@@ -30,11 +30,11 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
                     if(ex.getMessage().contains("Duplicate entry")){
-                        throw new BusCompanyException(ErrorCode.PASSENGER_ALREADY_EXISTS);
+                        throw new CheckedException(ErrorCode.PASSENGER_ALREADY_EXISTS);
                     }
-                    throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
+                    throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
                 }
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -50,7 +50,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -58,30 +58,28 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public Passenger getByPassport(String passport) {
-        Passenger passenger;
+    public void changeSeat(Place place) {
         try(SqlSession session = getSession()){
             try{
-                passenger = getOrderMapper(session).getByPassport(passport);
-            }
-            catch (RuntimeException ex){
-                session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
-            }
-            session.commit();
-        }
-        return passenger;
-    }
+                int idTripDate = getTripMapper(session).getIdTripDateUsingOrder(place.getOrder());
 
-    @Override
-    public void changeSeat(Passenger passenger, int placeNumber) {
-        try(SqlSession session = getSession()){
-            try{
-                getOrderMapper(session).changeSeat(passenger, placeNumber);
+                getOrderMapper(session).freeSeat(place, idTripDate);
+
+                int updatedRows = getOrderMapper(session).changeSeat(place, idTripDate);
+
+                if(updatedRows == 0){
+                    throw new RuntimeException("Место занято");
+                }
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
+                    throw new CheckedException(ErrorCode.PLACE_IS_ALREADY_TAKEN_BY_THIS_PASSENGER);
+                }
+                if(ex.getMessage().equals("Место занято")){
+                    throw new CheckedException(ErrorCode.PLACE_IS_OCCUPIED);
+                }
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -94,7 +92,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
                 getOrderMapper(session).deleteOrder(orderId);
             } catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -110,7 +108,7 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -118,25 +116,27 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
     }
 
     @Override
-    public void takeSeat(Place place) {
+    public int takeSeat(Place place) {
+        int updatedRows = 0;
         try(SqlSession session = getSession()){
             try{
                 int idTripDate = getTripMapper(session).getIdTripDateUsingOrder(place.getOrder());
 
-                getOrderMapper(session).takeSeat(idTripDate, place);
+                updatedRows = getOrderMapper(session).takeSeat(idTripDate, place);
             }
             catch (RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
                     if(ex.getMessage().contains("Duplicate entry")){
-                        throw new BusCompanyException(ErrorCode.PASSENGER_ALREADY_EXISTS);
+                        throw new CheckedException(ErrorCode.PASSENGER_ALREADY_EXISTS);
                     }
-                    throw new BusCompanyException(ErrorCode.TRIP_NOT_EXISTS);
+                    throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
                 }
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
+        return updatedRows;
     }
 
     @Override
@@ -147,9 +147,42 @@ public class ClientDaoImpl extends BaseDaoImpl implements ClientDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new BusCompanyException(ErrorCode.DATABASE_ERROR);
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
+    }
+
+    @Override
+    public int takeSeats(Order order) {
+        int updatedRows;
+        try(SqlSession session = getSession()){
+            try {
+                int passengersNumber = order.getPassengersNumber();
+                updatedRows = getOrderMapper(session).takeSeats(passengersNumber, order);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return updatedRows;
+    }
+
+    @Override
+    public int getIdTripDate(Order order) {
+        int id;
+        try(SqlSession session = getSession()){
+            try {
+                id = getTripMapper(session).getIdTripDateUsingOrder(order);
+            }
+            catch (RuntimeException ex){
+                session.rollback();
+                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+            }
+            session.commit();
+        }
+        return id;
     }
 }

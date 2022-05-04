@@ -4,6 +4,53 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.ClientMybatisMapper">
+
+    <resultMap id="resultBus" type="net.thumbtack.school.buscompany.model.Bus">
+        <constructor>
+            <idArg column="id_bus" javaType="_integer"/>
+        </constructor>
+        <result property="busName" column="bus_name_order"/>
+        <result property="placeCount" column="bus_place_count"/>
+    </resultMap>
+
+    <resultMap id="tripResult" type="net.thumbtack.school.buscompany.model.Trip">
+        <constructor>
+            <idArg column="id_trip_order" javaType="_integer"/>
+        </constructor>
+        <result property="fromStation" column="from_station_order"/>
+        <result property="toStation" column="to_station_order"/>
+        <result property="start" column="start_order"/>
+        <result property="duration" column="duration_order"/>
+        <result property="price" column="price_order"/>
+        <result property="approved" column="approved_order"/>
+
+        <association property="bus" resultMap="resultBus"/>
+
+        <collection property="tripDates" resultMap="resultDatesTrip" javaType="java.util.ArrayList"/>
+    </resultMap>
+
+    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.TripDate">
+        <id property="id" column="id_trip_date_order"/>
+        <result property="date" column="date_of_trip_order"/>
+    </resultMap>
+
+    <resultMap id="resultOrder" type="net.thumbtack.school.buscompany.model.Order">
+        <constructor>
+            <idArg column="id_order_order" javaType="_integer"/>
+        </constructor>
+
+        <result property="date" column="date_of_trip_order"/>
+        <association property="trip" resultMap="tripResult"/>
+        <association property="client" resultMap="resultClient"/>
+
+        <collection property="passengers" column="id_passenger" javaType="java.util.List" ofType="net.thumbtack.school.buscompany.model.Passenger">
+            <result property="id" column="passenger_id"/>
+            <result property="firstName" column="passenger_firstname"/>
+            <result property="lastName" column="passenger_lastname"/>
+            <result property="passport" column="passenger_passport"/>
+        </collection>
+    </resultMap>
+
     <resultMap id="resultClient" type="net.thumbtack.school.buscompany.model.Client">
         <id property="id" column="id_client"/>
         <result property="firstName" column="client_firstname"/>
@@ -11,28 +58,61 @@
         <result property="patronymic" column="client_patronymic"/>
         <result property="login" column="client_login"/>
         <result property="password" column="client_password"/>
-        <result property="userType" column="user_type"/>
         <result property="email" column="client_email"/>
         <result property="phone" column="client_phone"/>
+        <result property="userType" column="user_type"/>
+        <collection property="orders" resultMap="resultOrder" javaType="java.util.ArrayList"/>
     </resultMap>
 
     <select id="getByLogin" resultMap="resultClient">
-        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
+        SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
+                login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
+        `order`.id as id_order_order, trip_date.id as id_trip_date_order,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
+        passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport
         FROM `user` JOIN `client` ON `user`.id = `client`.id_user
+        LEFT JOIN `order` on `order`.id_client = `user`.id
+        LEFT JOIN trip_date on `order`.id_trip_date = trip_date.id
+        LEFT JOIN trip ON trip_date.id_trip = trip.id
+        LEFT JOIN bus ON bus.bus_name = trip.bus_name
+        LEFT JOIN passenger on passenger.id_order = `order`.id
         WHERE login = #{login}
     </select>
 
     <select id="getBySession" resultMap="resultClient">
-        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
-        FROM `user` JOIN `client` ON `user`.id = `client`.id_user JOIN `session` ON `session`.id_user = `user`.id
+        SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
+        login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
+        `order`.id as id_order_order, trip_date.id as id_trip_date_order,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
+        passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport
+        FROM `user` JOIN `client` ON `user`.id = `client`.id_user
+        JOIN `session` ON `session`.id_user = `user`.id
+        LEFT JOIN `order` on `order`.id_client = `user`.id
+        LEFT JOIN trip_date on `order`.id_trip_date = trip_date.id
+        LEFT JOIN trip ON trip_date.id_trip = trip.id
+        LEFT JOIN bus ON bus.bus_name = trip.bus_name
+        LEFT JOIN passenger on passenger.id_order = `order`.id
         WHERE uuid = #{uuid}
     </select>
 
     <select id="getAllClients" resultMap="resultClient">
-        SELECT `user`.id as id_client, firstname as client_firstname, lastname as client_lastname, patronymic as client_patronymic,
-                login as client_login, `password` as client_password, user_type, email as client_email, phone as client_phone
+        SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
+        login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
+        `order`.id as id_order_order, trip_date.id as id_trip_date_order,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
+        passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport
         FROM `user` JOIN `client` ON `user`.id = `client`.id_user
+        LEFT JOIN `order` on `order`.id_client = `user`.id
+        LEFT JOIN trip_date on `order`.id_trip_date = trip_date.id
+        LEFT JOIN trip ON trip_date.id_trip = trip.id
+        LEFT JOIN bus ON bus.bus_name = trip.bus_name
+        LEFT JOIN passenger on passenger.id_order = `order`.id
+        WHERE login = #{login}
     </select>
 </mapper>

@@ -5,14 +5,33 @@
 
 <mapper namespace="net.thumbtack.school.buscompany.mapper.mybatis.OrderMybatisMapper">
 
-    <resultMap id="tripResult" type="net.thumbtack.school.buscompany.model.Trip">
-        <result property="id" column="id_trip_order"/>
+    <resultMap id="resultBus" type="net.thumbtack.school.buscompany.model.Bus">
+        <constructor>
+            <idArg column="id_bus" javaType="_integer"/>
+        </constructor>
         <result property="busName" column="bus_name_order"/>
+        <result property="placeCount" column="bus_place_count"/>
+    </resultMap>
+
+    <resultMap id="resultTrip" type="net.thumbtack.school.buscompany.model.Trip">
+        <constructor>
+            <idArg column="id_trip_order" javaType="_integer"/>
+        </constructor>
         <result property="fromStation" column="from_station_order"/>
         <result property="toStation" column="to_station_order"/>
         <result property="start" column="start_order"/>
         <result property="duration" column="duration_order"/>
         <result property="price" column="price_order"/>
+        <result property="approved" column="approved_order"/>
+
+        <association property="bus" resultMap="resultBus"/>
+
+        <collection property="tripDates" resultMap="resultDatesTrip" javaType="java.util.ArrayList"/>
+    </resultMap>
+
+    <resultMap id="resultDatesTrip" type="net.thumbtack.school.buscompany.model.TripDate">
+        <id property="id" column="id_trip_date_order"/>
+        <result property="date" column="date_of_trip_order"/>
     </resultMap>
 
     <resultMap id="clientResult" type="net.thumbtack.school.buscompany.model.Client">
@@ -33,7 +52,7 @@
         </constructor>
 
         <result property="date" column="date_of_trip_order"/>
-        <association property="trip" resultMap="tripResult"/>
+        <association property="trip" resultMap="resultTrip"/>
         <association property="client" resultMap="clientResult"/>
 
         <collection property="passengers" column="id_passenger" javaType="java.util.List" ofType="net.thumbtack.school.buscompany.model.Passenger">
@@ -46,15 +65,16 @@
     </resultMap>
 
     <select id="getOrderById" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
                 passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -62,30 +82,32 @@
     </select>
 
     <select id="getAllOrders" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
     </select>
 
     <select id="getOrdersFromStation" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -93,15 +115,16 @@
     </select>
 
     <select id="getOrdersToStation" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -109,15 +132,16 @@
     </select>
 
     <select id="getOrdersFromDate" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -126,15 +150,16 @@
     </select>
 
     <select id="getOrdersToDate" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -143,15 +168,16 @@
     </select>
 
     <select id="getOrdersByBus" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user
@@ -159,15 +185,16 @@
     </select>
     
     <select id="getOrdersByClientId" resultMap="resultOrder">
-        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order,
-        trip.bus_name as bus_name_order, trip.from_station as from_station_order,
+        SELECT `order`.id as id_order_order, trip_date.id_trip as id_trip_order, trip_date.id as id_trip_date_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus,
+        trip.bus_name as bus_name_order, bus.seats_number as bus_place_count, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport,
         `user`.id as id_client_order, `user`.firstname as firstname_order, `user`.lastname as lastname_order, `user`.patronymic as patronymic_order,
         `user`.login as login_order, `user`.`password` as password_order, `user`.user_type as user_type_order, `client`.phone as phone_order, `client`.email as email_order
         FROM `order`
-        JOIN trip_date on `order`.id_trip = trip_date.id
+        JOIN trip_date on `order`.id_trip_date = trip_date.id
         JOIN trip ON trip_date.id_trip = trip.id
+        JOIN bus ON bus.bus_name = trip.bus_name
         JOIN passenger on passenger.id_order = `order`.id
         JOIN `user` ON `order`.id_client = `user`.id
         JOIN `client` ON `order`.id_client = `client`.id_user

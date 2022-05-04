@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Place {
+    int tripId;
     private Order order;
     private Passenger passenger;
     private int placeNumber;

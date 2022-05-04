@@ -7,6 +7,7 @@ import net.thumbtack.school.buscompany.dto.response.common.trip.GetTripAdminDtoR
 import net.thumbtack.school.buscompany.dto.response.common.trip.GetTripDtoResponse;
 import net.thumbtack.school.buscompany.model.Schedule;
 import net.thumbtack.school.buscompany.model.Trip;
+import net.thumbtack.school.buscompany.model.TripDate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -24,7 +25,8 @@ public interface TripMapstructMapper {
     TripMapstructMapper INSTANCE = Mappers.getMapper(TripMapstructMapper.class);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "dates", ignore = true)
+    @Mapping(target = "tripDates", ignore = true)
+    @Mapping(target = "bus", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toDateHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toDateHHMM")
     @Mapping(target = "approved", ignore = true)
@@ -46,7 +48,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     RegisterTripDtoResponse toRegisterDtoResponse(Trip trip);
 
     @Mapping(source = "id", target = "tripId")
@@ -54,7 +56,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     UpdateTripDtoResponse toUpdateDtoResponse(Trip trip);
 
     @Mapping(source = "id", target = "tripId")
@@ -62,7 +64,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     GetTripProfileDtoResponse toGetDtoResponse(Trip trip);
 
 
@@ -71,7 +73,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     ApproveTripDtoResponse toApproveDtoResponse(Trip trip);
 
     @Mapping(source = "id", target = "tripId")
@@ -79,7 +81,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     GetTripAdminDtoResponse toGetTripAdminDtoResponse(Trip trip);
 
     @Mapping(source = "id", target = "tripId")
@@ -87,7 +89,7 @@ public interface TripMapstructMapper {
     @Mapping(target = "schedule", ignore = true)
     @Mapping(source = "start", target = "start", qualifiedByName = "toStringHHMM")
     @Mapping(source = "duration", target = "duration", qualifiedByName = "toStringHHMM")
-    @Mapping(source = "dates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
+    @Mapping(source = "tripDates", target = "dates", qualifiedByName = "toStringListYYYYMMDD")
     GetTripDtoResponse toGetTripClientDtoResponse(Trip trip);
 
 
@@ -114,11 +116,11 @@ public interface TripMapstructMapper {
     }
 
     @Named("toStringListYYYYMMDD")
-    default List<String> toStringListYYYYMMDD(List<LocalDate> dates){
+    default List<String> toStringListYYYYMMDD(List<TripDate> dates){
         List<String> datesStrings = new ArrayList<>(dates.size());
 
-        for(LocalDate date : dates){
-            datesStrings.add(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        for(TripDate date : dates){
+            datesStrings.add(date.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
 
         return datesStrings;

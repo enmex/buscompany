@@ -6,11 +6,12 @@ import net.thumbtack.school.buscompany.dao.BaseDao;
 import net.thumbtack.school.buscompany.dao.ClientDao;
 import net.thumbtack.school.buscompany.dao.UserDao;
 import net.thumbtack.school.buscompany.daoimpl.BaseDaoImpl;
-import net.thumbtack.school.buscompany.model.Schedule;
+import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ErrorCode;
+import net.thumbtack.school.buscompany.model.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -45,20 +46,53 @@ public class ServiceBase {
         dayOfWeekMap.put("Sat", DayOfWeek.SATURDAY);
     }
 
-    protected List<String> formatDates(List<LocalDate> dates){
+    protected void refreshSession(String cookieValue) {
+        userDao.updateSession(cookieValue);
+    }
+
+    protected Admin getAdmin(String cookieValue){
+        if(cookieValue == null){
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+        }
+        refreshSession(cookieValue);
+
+        User user = userDao.getBySession(cookieValue);
+
+        if(user.getUserType() != UserType.ADMIN){
+            throw new CheckedException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        return (Admin) user;
+    }
+
+    protected Client getClient(String cookieValue){
+        if(cookieValue == null){
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+        }
+        refreshSession(cookieValue);
+
+        User user = userDao.getBySession(cookieValue);
+
+        if(user.getUserType() != UserType.CLIENT){
+            throw new CheckedException(ErrorCode.OPERATION_NOT_ALLOWED);
+        }
+
+        return (Client) user;
+    }
+    protected List<String> formatDates(List<TripDate> dates){
         List<String> datesString = new ArrayList<>(dates.size());
 
-        for(LocalDate date : dates){
-            datesString.add(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        for(TripDate date : dates){
+            datesString.add(date.getDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         }
         return datesString;
     }
 
-    protected List<LocalDate> parseDates(List<String> dates){
-        List<LocalDate> dateList = new ArrayList<>(dates.size());
+    protected List<TripDate> parseDates(List<String> dates){
+        List<TripDate> dateList = new ArrayList<>(dates.size());
 
         for(String date : dates){
-            dateList.add(LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            dateList.add(new TripDate(0, LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"))));
         }
 
         return dateList;
@@ -68,60 +102,47 @@ public class ServiceBase {
         List<LocalDate> dates = new ArrayList<>();
 
         if (schedule.getPeriod().equals("daily")) {
-            // REVU проще
-            // 		for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plus(1, ChronoUnit.DAYS)) {
-            //			dates.add(date);
-            //		}
-            LocalDate currentDate = schedule.getFromDate();
-            dates.add(currentDate);
-
-            while(schedule.getToDate().isAfter(dateAfter(currentDate))){
-                currentDate = dateAfter(currentDate);
-                dates.add(currentDate);
+            for (LocalDate date = schedule.getFromDate();
+                 !date.isAfter(schedule.getToDate());
+                 date = date.plus(1, ChronoUnit.DAYS)) {
+                dates.add(date);
             }
-            dates.add(schedule.getToDate());
+
+            if(dates.size() == 0) {
+                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+            }
 
             return dates;
         }
 
         if(schedule.getPeriod().equals("odd")){
-            // REVU 			for (LocalDate date = fromDate; !date.isAfter(toDate); date = date.plus(1, ChronoUnit.DAYS)) {
-            //				if (date.getDayOfMonth() % 2 == 1)
-            //					dates.add(date);
-            //			}
-            LocalDate currentDate = schedule.getFromDate();
-
-            if(!isOddDay(currentDate)){
-                currentDate = currentDate.plus(1, ChronoUnit.DAYS);
+            for (LocalDate date = schedule.getFromDate();
+                 !date.isAfter(schedule.getToDate());
+                 date = date.plus(1, ChronoUnit.DAYS)) {
+                if(date.getDayOfMonth() % 2 == 1) {
+                    dates.add(date);
+                }
             }
 
-            do {
-                dates.add(currentDate);
-                currentDate = currentDate.plus(2, ChronoUnit.DAYS);
-
-                if(!isOddDay(currentDate)){
-                    currentDate = currentDate.minus(1, ChronoUnit.DAYS);
-                }
-            } while(schedule.getToDate().isAfter(currentDate));
+            if(dates.size() == 0) {
+                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+            }
 
             return dates;
         }
 
         if(schedule.getPeriod().equals("even")){
-            LocalDate currentDate = schedule.getFromDate();
-
-            if(isOddDay(currentDate)){
-                currentDate = currentDate.plus(1, ChronoUnit.DAYS);
+            for (LocalDate date = schedule.getFromDate();
+                 !date.isAfter(schedule.getToDate());
+                 date = date.plus(1, ChronoUnit.DAYS)) {
+                if(date.getDayOfMonth() % 2 == 0) {
+                    dates.add(date);
+                }
             }
 
-            do {
-                dates.add(currentDate);
-                currentDate = currentDate.plus(2, ChronoUnit.DAYS);
-
-                if(isOddDay(currentDate)){
-                    currentDate = currentDate.minus(1, ChronoUnit.DAYS);
-                }
-            } while(schedule.getToDate().isAfter(currentDate));
+            if(dates.size() == 0) {
+                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+            }
 
             return dates;
         }
@@ -129,33 +150,32 @@ public class ServiceBase {
         String[] daysOfPeriod = schedule.getPeriod().split(",\\s+");
 
         if(isDaysOfWeek(daysOfPeriod)) {
-            LocalDate currentDate = schedule.getFromDate();
 
-            while(schedule.getToDate().isAfter(currentDate)) {
-                for(String day : daysOfPeriod){
-                    DayOfWeek dayOfWeek = dayOfWeekMap.get(day);
-                    currentDate = nextDayOfWeekFrom(currentDate, dayOfWeek);
-                    dates.add(currentDate);
+            for (LocalDate date = schedule.getFromDate(); !date.isAfter(schedule.getToDate()); date = date.plus(1, ChronoUnit.DAYS)) {
+                if(dayOfWeeksMatch(date, daysOfPeriod)) {
+                    dates.add(date);
                 }
             }
 
         }
         else{
-            LocalDate currentDate = schedule.getFromDate();
-            int addedDays;
-            for(int i = 0; i < 1000; i+= addedDays) {
-                addedDays = 0;
-                for (String day : daysOfPeriod) {
-                    int dayOfMonth = Integer.parseInt(day);
+            List<Integer> days = new ArrayList<>(daysOfPeriod.length);
+            for(String day : daysOfPeriod){
+                days.add(Integer.parseInt(day));
+            }
 
-                    if(isAfter(currentDate, dayOfMonth)){
-                        currentDate = nextDayOfMonth(currentDate, dayOfMonth);
-                        dates.add(currentDate);
-                        addedDays ++;
-                    }
+            for(LocalDate date = schedule.getFromDate();
+                !date.isAfter(schedule.getToDate());
+                date = date.plus(1, ChronoUnit.DAYS)) {
 
+                if(days.contains(date.getDayOfMonth())){
+                    dates.add(date);
                 }
             }
+        }
+
+        if(dates.size() == 0) {
+            throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
         }
 
         return dates;
@@ -165,38 +185,15 @@ public class ServiceBase {
         return Arrays.stream(days).allMatch(str -> dayOfWeekMap.get(str) != null);
     }
 
-    protected boolean nextDayIsNextMonth(LocalDate from){
-        int currentMonth = from.getMonthValue();
-        return from.plus(1, ChronoUnit.DAYS).getDayOfMonth() != currentMonth;
-    }
+    protected boolean dayOfWeeksMatch(LocalDate date, String[] days){
+        for(String day : days){
+            DayOfWeek dayOfWeek = dayOfWeekMap.get(day);
 
-    protected LocalDate dateAfter(LocalDate date){
-        return date.plus(1, ChronoUnit.DAYS);
-    }
-
-    protected boolean isAfter(LocalDate date, int day){
-        int currentDay = date.getDayOfMonth();
-        return currentDay <= day;
-    }
-
-    protected boolean isOddDay(LocalDate date){
-        return date.getDayOfMonth() % 2 == 1;
-    }
-
-    protected LocalDate nextDayOfWeekFrom(LocalDate date, DayOfWeek day){
-        int currentDay = date.getDayOfWeek().getValue();
-        int difference = day.getValue() - currentDay;
-
-        if(difference <= 0){
-            difference += 7;
+            if(date.getDayOfWeek().equals(dayOfWeek)){
+                return true;
+            }
         }
-
-        return date.plus(difference, ChronoUnit.DAYS);
-    }
-
-    protected LocalDate nextDayOfMonth(LocalDate date, int day){
-        int currentDay = date.getDayOfMonth();
-        return date.plus(day - currentDay, ChronoUnit.DAYS);
+        return false;
     }
 
     protected LocalDate parseDate(String date) {
@@ -215,7 +212,7 @@ public class ServiceBase {
         return ResponseCookie.from(BusCompanyCookies.JAVASESSIONID, "").maxAge(0L).build();
     }
 
-    protected boolean inBetween(LocalDate date, List<LocalDate> dates){
-        return date.isAfter(dates.get(0)) && dates.get(dates.size() - 1).isAfter(date);
+    protected boolean inBetween(LocalDate date, List<TripDate> dates){
+        return date.isAfter(dates.get(0).getDate()) && dates.get(dates.size() - 1).getDate().isAfter(date);
     }
 }

@@ -22,7 +22,7 @@ public class PlaceController {
 
     @GetMapping(value = "/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public GetFreePlacesDtoResponse getFreePlaces(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                                  @PathVariable @Id @Valid String orderId){
+                                                  @PathVariable String orderId){
         return clientService.getFreePlaces(cookieValue, orderId);
     }
 

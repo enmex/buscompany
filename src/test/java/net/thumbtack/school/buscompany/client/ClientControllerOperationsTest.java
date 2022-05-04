@@ -13,7 +13,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,9 +24,7 @@ public class ClientControllerOperationsTest extends BaseTest {
     public void testRegisterClient() throws Exception {
         MvcResult result = registerClient();
 
-        RegisterClientDtoResponse response = gson.fromJson(result
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), RegisterClientDtoResponse.class);
+        RegisterClientDtoResponse response = getContent(result, RegisterClientDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("client", response.getUserType());
         assertEquals("Михаил", response.getFirstName());
@@ -47,9 +44,7 @@ public class ClientControllerOperationsTest extends BaseTest {
         Cookie cookie = registerResult.getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
         MvcResult result = httpPut("/api/clients", cookie, gson.toJson(request));
-        UpdateClientProfileDtoResponse response = gson.fromJson(result
-                .getResponse()
-                .getContentAsString(StandardCharsets.UTF_8), UpdateClientProfileDtoResponse.class);
+        UpdateClientProfileDtoResponse response = getContent(result, UpdateClientProfileDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals("client", response.getUserType());
@@ -58,12 +53,5 @@ public class ClientControllerOperationsTest extends BaseTest {
         assertEquals("Иванович", response.getPatronymic());
         assertEquals("79998887766", response.getPhone());
         assertEquals("mail@mail.ru", response.getEmail());
-    }
-
-    @Test
-    public void testGetAllClients() throws Exception {
-        MvcResult resultAdmin = registerAdmin();
-        MvcResult resultClient = registerClient();
-
     }
 }

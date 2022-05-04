@@ -11,7 +11,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MvcResult;
 
 import javax.servlet.http.Cookie;
-import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -23,7 +22,7 @@ public class SettingsControllerOperationsTest extends BaseTest {
         Cookie cookie = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
         MvcResult result = httpGet("/api/settings", cookie);
-        GetSettingsDtoResponse response = gson.fromJson(result.getResponse().getContentAsString(StandardCharsets.UTF_8), GetSettingsDtoResponse.class);
+        GetSettingsDtoResponse response = getContent(result, GetSettingsDtoResponse.class);
 
         assertEquals(200, result.getResponse().getStatus());
         assertEquals(3600, response.getUserIdleTimeout());

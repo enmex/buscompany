@@ -12,13 +12,15 @@ import java.util.List;
 public interface ClientDao {
     void insertOrder(Order order);
     List<Integer> getFreeSeats(Order order);
-    Passenger getByPassport(String passport);
-    void changeSeat(Passenger passenger, int placeNumber);
+    void changeSeat(Place place);
     void cancelOrder(int orderId);
 
     boolean isClientOrder(User user, Order order);
 
-    void takeSeat(Place place);
-
+    int takeSeat(Place place);
     void insertPassenger(Order order, Passenger passenger);
+
+    int takeSeats(Order order);
+
+    int getIdTripDate(Order order);
 }

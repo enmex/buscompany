@@ -1,7 +1,6 @@
 package net.thumbtack.school.buscompany.service;
 
 import net.thumbtack.school.buscompany.dao.AdminDao;
-import net.thumbtack.school.buscompany.dao.BaseDao;
 import net.thumbtack.school.buscompany.dao.ClientDao;
 import net.thumbtack.school.buscompany.dao.UserDao;
 import net.thumbtack.school.buscompany.dto.request.common.login.LoginDtoRequest;
@@ -17,7 +16,7 @@ import net.thumbtack.school.buscompany.dto.response.common.profile.GetProfileDto
 import net.thumbtack.school.buscompany.dto.response.common.settings.GetSettingsDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.trip.*;
 import net.thumbtack.school.buscompany.dto.response.common.unregister.UnregisterUserDtoResponse;
-import net.thumbtack.school.buscompany.exception.BusCompanyException;
+import net.thumbtack.school.buscompany.exception.CheckedException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mapstruct.*;
 import net.thumbtack.school.buscompany.model.*;
@@ -27,7 +26,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @Service
@@ -47,48 +48,31 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<LoginUserDtoResponse> loginUser(String cookieValue, LoginDtoRequest request){
         if(cookieValue != null){
-            throw new BusCompanyException(ErrorCode.OFFLINE_OPERATION, "login");
+            throw new CheckedException(ErrorCode.OFFLINE_OPERATION);
         }
 
         User user = userDao.getByLogin(request.getLogin());
-        String userType = user.getUserType();
-        if(userDao.isOnline(user)){
-            throw new BusCompanyException(ErrorCode.USER_ALREADY_ONLINE, "login");
-        }
+        UserType userType = user.getUserType();
 
         if(!user.getPassword().equals(request.getPassword())){
-            throw new BusCompanyException(ErrorCode.INVALID_LOGIN_OR_PASSWORD, "password");
+            throw new CheckedException(ErrorCode.INVALID_LOGIN_OR_PASSWORD);
         }
 
-        String uuid = userDao.openSession(user);
+        String uuid = userDao.insertSession(user);
         ResponseCookie cookie = createJavaSessionIdCookie(uuid);
 
         LoginUserDtoResponse response;
 
-        if(userType.equals("admin")){
+        if(userType == UserType.ADMIN){
             Admin admin = (Admin) user;
             response = new LoginAdminDtoResponse(admin.getId(), admin.getFirstName(), admin.getLastName(),
-                    admin.getPatronymic(), userType, admin.getPosition());
+                    admin.getPatronymic(), userType.toString().toLowerCase(Locale.ROOT), admin.getPosition());
         }
         else{
             Client client = (Client) user;
             response = new LoginClientDtoResponse(client.getId(), client.getFirstName(), client.getLastName(),
-                    client.getPatronymic(), userType, client.getEmail(), client.getPhone());
+                    client.getPatronymic(), userType.toString().toLowerCase(Locale.ROOT), client.getEmail(), client.getPhone());
         }
-
-        // REVU так никаких ресурсов не хватит, если на каждого юзера Вы будете поток заводить
-        // давайте это голосом обсудим
-        new Thread(() -> {
-            TimerTask timerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    userDao.closeSession(uuid);
-                    LOGGER.info("User " + user.getLogin() + " disconnected");
-                }
-            };
-            Timer timer = new Timer();
-            timer.schedule(timerTask, cookieMaxAge * 1000);
-        }).start();
 
         LOGGER.info("User " + user.getLogin() + " joined the server");
 
@@ -97,8 +81,9 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<LogoutUserDtoResponse> logoutUser(String cookieValue) {
         if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "logout");
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
         }
+
         User user = userDao.getBySession(cookieValue);
 
         userDao.closeSession(cookieValue);
@@ -111,7 +96,7 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<UnregisterUserDtoResponse> unregisterUser(String cookieValue) {
         if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "unregister");
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
@@ -127,15 +112,15 @@ public class UserService extends ServiceBase{
 
     public GetProfileDtoResponse getUserProfile(String cookieValue) {
         if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "getProfile");
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
+        UserType userType = user.getUserType();
 
         GetProfileDtoResponse response;
 
-        if(userType.equals("admin")){
+        if(userType == UserType.ADMIN){
             Admin admin = (Admin) user;
             response = AdminMapstructMapper.INSTANCE.toGetProfileDto(admin);
         }
@@ -152,11 +137,11 @@ public class UserService extends ServiceBase{
                                              String toStation, String busName,
                                              String fromDate, String toDate, String clientId)  {
         if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION, "getAllOrders");
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
+        UserType userType = user.getUserType();
 
         Set<Order> orders = userDao.getAllOrders();
 
@@ -173,16 +158,37 @@ public class UserService extends ServiceBase{
         }
 
         if(fromDate != null){
+            try{
+                LocalDate.parse(fromDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+            catch (DateTimeParseException ex){
+                throw new CheckedException(ErrorCode.INVALID_DATE);
+            }
+
             orders.retainAll(userDao.getOrdersFromDate(parseDate(fromDate)));
         }
 
         if(toDate != null){
+            try{
+                LocalDate.parse(toDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            }
+            catch (DateTimeParseException ex){
+                throw new CheckedException(ErrorCode.INVALID_DATE);
+            }
+
             orders.retainAll(userDao.getOrdersToDate(parseDate(toDate)));
         }
 
-        if(userType.equals("admin")){
+        if(userType == UserType.ADMIN){
 
             if(clientId != null){
+                try{
+                    Integer.parseInt(clientId);
+                }
+                catch (NumberFormatException ex){
+                    throw new CheckedException(ErrorCode.INVALID_ID);
+                }
+
                 orders.retainAll(userDao.getOrdersByClientId(Integer.parseInt(clientId)));
             }
         }
@@ -192,7 +198,7 @@ public class UserService extends ServiceBase{
 
         List<GetOrderDtoResponse> responseList = new ArrayList<>();
         for(Order order : orders){
-            if(clientDao.isClientOrder(user, order) || userType.equals("admin")) {
+            if(clientDao.isClientOrder(user, order) || userType == UserType.ADMIN) {
                 Trip trip = order.getTrip();
 
                 GetOrderDtoResponse getOrderDtoResponse = OrderMapstructMapper.INSTANCE.toGetDtoResponse(order);
@@ -210,7 +216,6 @@ public class UserService extends ServiceBase{
         }
 
         LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got the information about orders with special params");
-
         return new GetOrdersDtoResponse(responseList);
     }
 
@@ -220,12 +225,14 @@ public class UserService extends ServiceBase{
         );
     }
 
-    public GetTripsDtoResponse getAllTrips(String cookieValue, String fromStation, String toStation, String busName, String fromDate, String toDate) throws ParseException {
+    public GetTripsDtoResponse getAllTrips(String cookieValue, String fromStation,
+                                           String toStation, String busName,
+                                           String fromDate, String toDate) {
         if(cookieValue == null){
-            throw new BusCompanyException(ErrorCode.ONLINE_OPERATION);
+            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
         }
         User user = userDao.getBySession(cookieValue);
-        String userType = user.getUserType();
+        UserType userType = user.getUserType();
 
         Set<Trip> trips = new HashSet<>(userDao.getAllTrips());
 
@@ -242,19 +249,33 @@ public class UserService extends ServiceBase{
         }
 
         if(fromDate != null){
+            try {
+                parseDate(fromDate);
+            }
+            catch (DateTimeParseException ex){
+                throw new CheckedException(ErrorCode.INVALID_DATE);
+            }
+
             trips.retainAll(userDao.getTripsFromDate(parseDate(fromDate)));
         }
 
         if(toDate != null){
+            try {
+                parseDate(toDate);
+            }
+            catch (DateTimeParseException ex){
+                throw new CheckedException(ErrorCode.INVALID_DATE);
+            }
+
             trips.retainAll(userDao.getTripsToDate(parseDate(toDate)));
         }
 
         List<GetTripDtoResponse> responseList = new ArrayList<>();
 
-        if(userType.equals("admin")){
+        if(userType == UserType.ADMIN){
             for(Trip trip : trips){
                 GetTripAdminDtoResponse getTripAdminDtoResponse;
-                Bus bus = userDao.getBus(trip.getBusName());
+                Bus bus = trip.getBus();
                 BusDtoResponse busDtoResponse = BusMapstructMapper.INSTANCE.toDtoResponse(bus);
 
                 Schedule schedule = adminDao.getSchedule(trip);
@@ -265,12 +286,20 @@ public class UserService extends ServiceBase{
                     getTripAdminDtoResponse = TripMapstructMapper.INSTANCE.toGetTripAdminDtoResponse(trip);
                     getTripAdminDtoResponse.setBus(busDtoResponse);
                     getTripAdminDtoResponse.setSchedule(scheduleDtoResponse);
-                    getTripAdminDtoResponse.setDates(formatDates(createDates(schedule)));
+
+                    List<TripDate> tripDates = new ArrayList<>();
+                    List<LocalDate> dates = createDates(schedule);
+
+                    for(LocalDate localDate : dates){
+                        tripDates.add(new TripDate(0, localDate));
+                    }
+
+                    getTripAdminDtoResponse.setDates(formatDates(tripDates));
                 }
                 else{
                     getTripAdminDtoResponse = TripMapstructMapper.INSTANCE.toGetTripAdminDtoResponse(trip);
                     getTripAdminDtoResponse.setBus(busDtoResponse);
-                    getTripAdminDtoResponse.setDates(formatDates(trip.getDates()));
+                    getTripAdminDtoResponse.setDates(formatDates(trip.getTripDates()));
                 }
 
                 responseList.add(getTripAdminDtoResponse);
@@ -280,7 +309,7 @@ public class UserService extends ServiceBase{
             for(Trip trip : trips){
                 if(trip.isApproved()) {
                     GetTripDtoResponse getTripDtoResponse;
-                    Bus bus = userDao.getBus(trip.getBusName());
+                    Bus bus = trip.getBus();
                     BusDtoResponse busDtoResponse = BusMapstructMapper.INSTANCE.toDtoResponse(bus);
 
                     Schedule schedule = adminDao.getSchedule(trip);
@@ -291,12 +320,20 @@ public class UserService extends ServiceBase{
                         getTripDtoResponse = TripMapstructMapper.INSTANCE.toGetTripClientDtoResponse(trip);
                         getTripDtoResponse.setBus(busDtoResponse);
                         getTripDtoResponse.setSchedule(scheduleDtoResponse);
-                        getTripDtoResponse.setDates(formatDates(createDates(schedule)));
+
+                        List<TripDate> tripDates = new ArrayList<>();
+                        List<LocalDate> dates = createDates(schedule);
+
+                        for(LocalDate localDate : dates){
+                            tripDates.add(new TripDate(0, localDate));
+                        }
+
+                        getTripDtoResponse.setDates(formatDates(tripDates));
                     }
                     else {
                         getTripDtoResponse = TripMapstructMapper.INSTANCE.toGetTripClientDtoResponse(trip);
                         getTripDtoResponse.setBus(busDtoResponse);
-                        getTripDtoResponse.setDates(formatDates(trip.getDates()));
+                        getTripDtoResponse.setDates(formatDates(trip.getTripDates()));
                     }
 
                     responseList.add(getTripDtoResponse);

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.thumbtack.school.buscompany.validation.Date;
 import net.thumbtack.school.buscompany.validation.Period;
+import net.thumbtack.school.buscompany.validation.Schedule;
 
 import javax.validation.constraints.NotNull;
 
@@ -15,10 +16,10 @@ import javax.validation.constraints.NotNull;
 @Setter
 public class ScheduleDtoRequest {
     @NotNull
-    @Date
+    @Date(style = "yyyy-MM-dd")
     private String fromDate;
     @NotNull
-    @Date
+    @Date(style = "yyyy-MM-dd")
     private String toDate;
     @NotNull
     @Period
