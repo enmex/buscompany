@@ -3,9 +3,9 @@ package net.thumbtack.school.buscompany.place;
 import net.thumbtack.school.buscompany.BaseTest;
 import net.thumbtack.school.buscompany.controller.PlaceController;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
-import net.thumbtack.school.buscompany.dto.request.client.ChooseSeatDtoRequest;
+import net.thumbtack.school.buscompany.dto.request.client.ChoosePlaceDtoRequest;
 import net.thumbtack.school.buscompany.dto.response.admin.RegisterTripDtoResponse;
-import net.thumbtack.school.buscompany.dto.response.client.ChooseSeatDtoResponse;
+import net.thumbtack.school.buscompany.dto.response.client.ChoosePlaceDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.GetFreePlacesDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.OrderTicketDtoResponse;
 import org.junit.jupiter.api.Test;
@@ -38,8 +38,7 @@ public class PlaceControllerOperationsTest extends BaseTest {
 
         GetFreePlacesDtoResponse response = getContent(result, GetFreePlacesDtoResponse.class);
         assertEquals(200, result.getResponse().getStatus());
-        assertEquals(49, response.getPlaces().size());
-        assertFalse(response.getPlaces().contains(0));
+        assertEquals(50, response.getPlaces().size());
     }
 
     @Test
@@ -54,14 +53,14 @@ public class PlaceControllerOperationsTest extends BaseTest {
         int orderId = getContent(registerOrder(client, tripId, "2022-10-04"), OrderTicketDtoResponse.class)
                 .getOrderId();
 
-        ChooseSeatDtoRequest request = new ChooseSeatDtoRequest(
+        ChoosePlaceDtoRequest request = new ChoosePlaceDtoRequest(
                 orderId, "Смирнов", "Иван", "174830", 13
         );
 
         MvcResult result = httpPost("/api/places", client, gson.toJson(request));
         assertEquals(200, result.getResponse().getStatus());
 
-        ChooseSeatDtoResponse response = getContent(result, ChooseSeatDtoResponse.class);
+        ChoosePlaceDtoResponse response = getContent(result, ChoosePlaceDtoResponse.class);
         assertEquals(orderId, response.getOrderId());
         assertEquals("Иван", response.getFirstName());
         assertEquals("Смирнов", response.getLastName());

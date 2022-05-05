@@ -3,6 +3,8 @@ package net.thumbtack.school.buscompany.model;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
@@ -42,5 +44,17 @@ public class Order {
 
     public void addPassenger(Passenger passenger) {
         passengers.add(passenger);
+    }
+
+    public int getIdTripDate() {
+        List<TripDate> tripDates = trip.getTripDates();
+
+        for(TripDate date : tripDates) {
+            if(date.getDate().equals(this.date)) {
+                return date.getId();
+            }
+        }
+
+        return -1;
     }
 }

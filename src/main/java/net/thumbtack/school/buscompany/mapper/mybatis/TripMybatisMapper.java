@@ -53,7 +53,7 @@ public interface TripMybatisMapper {
     @Select("SELECT id FROM trip_date WHERE id_trip = #{order.trip.id} AND `date` = #{order.date}")
     int getIdTripDateUsingOrder(@Param("order") Order order);
 
-    @Insert("INSERT INTO seats (id_trip_date, place_number) VALUES(#{idTripDate}, #{placeNumber})")
+    @Insert("INSERT INTO places (id_trip_date, place_number) VALUES(#{idTripDate}, #{placeNumber})")
     void registerPlace(@Param("idTripDate") int idTripDate, @Param("placeNumber") int placeNumber);
 
     @Select("SELECT id, `date` FROM trip_date WHERE id_trip = #{trip.id}")

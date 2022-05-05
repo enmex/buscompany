@@ -2,7 +2,7 @@ package net.thumbtack.school.buscompany.integration;
 
 import net.thumbtack.school.buscompany.BaseTest;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
-import net.thumbtack.school.buscompany.dto.request.client.ChooseSeatDtoRequest;
+import net.thumbtack.school.buscompany.dto.request.client.ChoosePlaceDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.common.profile.UpdateAdminProfileDtoRequest;
 import net.thumbtack.school.buscompany.dto.response.admin.RegisterTripDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.GetFreePlacesDtoResponse;
@@ -102,7 +102,7 @@ public class IntegrationTest extends BaseTest {
 
         Cookie admin2 = loginAdminResult1.getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        ChooseSeatDtoRequest request = new ChooseSeatDtoRequest();
+        ChoosePlaceDtoRequest request = new ChoosePlaceDtoRequest();
         request.setPlace(30);
         request.setPassport("123");
         request.setFirstName("Иван");
@@ -111,9 +111,9 @@ public class IntegrationTest extends BaseTest {
         assertEquals(200, httpPost("/api/places", client1, gson.toJson(request)).getResponse().getStatus());
 
         GetFreePlacesDtoResponse getFreePlacesDtoResponse = getContent(httpGet("/api/places/" + idScheduleOrderClient1, client1), GetFreePlacesDtoResponse.class);
-        assertFalse(getFreePlacesDtoResponse.getPlaces().contains(0));
-        assertFalse(getFreePlacesDtoResponse.getPlaces().contains(1));
-        assertFalse(getFreePlacesDtoResponse.getPlaces().contains(2));
+        assertTrue(getFreePlacesDtoResponse.getPlaces().contains(0));
+        assertTrue(getFreePlacesDtoResponse.getPlaces().contains(1));
+        assertTrue(getFreePlacesDtoResponse.getPlaces().contains(2));
         assertFalse(getFreePlacesDtoResponse.getPlaces().contains(30));
 
         assertBadRequest(httpDelete("/api/orders/" + idDatesOrderClient3, client1), "NOT_CLIENT_ORDER");

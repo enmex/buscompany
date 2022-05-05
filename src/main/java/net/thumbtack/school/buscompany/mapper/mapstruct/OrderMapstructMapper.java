@@ -1,9 +1,9 @@
 package net.thumbtack.school.buscompany.mapper.mapstruct;
 
-import net.thumbtack.school.buscompany.dto.request.client.ChooseSeatDtoRequest;
+import net.thumbtack.school.buscompany.dto.request.client.ChoosePlaceDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.client.OrderTicketDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.client.PassengerDtoRequest;
-import net.thumbtack.school.buscompany.dto.response.client.ChooseSeatDtoResponse;
+import net.thumbtack.school.buscompany.dto.response.client.ChoosePlaceDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.OrderTicketDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.PassengerDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.trip.GetOrderDtoResponse;
@@ -16,7 +16,6 @@ import org.mapstruct.factory.Mappers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -62,10 +61,10 @@ public interface OrderMapstructMapper {
 
     PassengerDtoResponse toDtoResponse(Passenger passenger);
     @Mapping(target = "ticket", ignore = true)
-    ChooseSeatDtoResponse fromDtoRequest(ChooseSeatDtoRequest request);
+    ChoosePlaceDtoResponse fromDtoRequest(ChoosePlaceDtoRequest request);
 
     @Mapping(target = "id", ignore = true)
-    Passenger fromDtoRequestToPassenger(ChooseSeatDtoRequest request);
+    Passenger fromDtoRequestToPassenger(ChoosePlaceDtoRequest request);
 
     @Named("toDateYYYYMMDD")
     default Date toDateYYYYMMDD(String date) throws ParseException {

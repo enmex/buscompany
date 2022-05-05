@@ -1,11 +1,10 @@
 package net.thumbtack.school.buscompany.controller;
 
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
-import net.thumbtack.school.buscompany.dto.request.client.ChooseSeatDtoRequest;
-import net.thumbtack.school.buscompany.dto.response.client.ChooseSeatDtoResponse;
+import net.thumbtack.school.buscompany.dto.request.client.ChoosePlaceDtoRequest;
+import net.thumbtack.school.buscompany.dto.response.client.ChoosePlaceDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.GetFreePlacesDtoResponse;
 import net.thumbtack.school.buscompany.service.ClientService;
-import net.thumbtack.school.buscompany.validation.Id;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,8 +26,8 @@ public class PlaceController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ChooseSeatDtoResponse choosePlace(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                            @RequestBody @Valid ChooseSeatDtoRequest request){
+    public ChoosePlaceDtoResponse choosePlace(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+                                              @RequestBody @Valid ChoosePlaceDtoRequest request){
         return clientService.choosePlace(cookieValue, request);
     }
 }

@@ -35,7 +35,7 @@
     </resultMap>
 
     <select id="getTripById" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count, trip.from_station as from_station_trip,
                 trip.to_station as to_station_trip, trip.`start` as start_trip, trip.duration as duration_trip,
                 trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -44,7 +44,7 @@
     </select>
 
     <select id="getTripsByFromStation" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count,  trip.from_station as from_station_trip,
             trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
             trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -53,7 +53,7 @@
     </select>
 
     <select id="getTripsByToStation" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
         trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -62,7 +62,7 @@
     </select>
 
     <select id="getTripsByFromDate" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
         trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -71,7 +71,7 @@
     </select>
 
     <select id="getTripsByToDate" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
         trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -80,7 +80,7 @@
     </select>
 
     <select id="getTripsByBus" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count,  trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count,  trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.start as start_trip, trip.duration as duration_trip,
         trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip
@@ -89,7 +89,7 @@
     </select>
 
     <select id="getAllTrips" resultMap="resultTrip">
-        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.seats_number as bus_place_count, trip.from_station as from_station_trip,
+        SELECT trip.id as id_trip_trip, bus.id as id_bus, trip.bus_name as bus_name_trip, bus.places_number as bus_place_count, trip.from_station as from_station_trip,
         trip.to_station as to_station_trip, trip.`start` as start_trip, trip.duration as duration_trip,
         trip.price as price_trip, trip.approved as approved_trip, trip_date.id as id_trip_date, trip_date.`date` as date_trip
         FROM trip JOIN trip_date ON trip.id = trip_date.id_trip

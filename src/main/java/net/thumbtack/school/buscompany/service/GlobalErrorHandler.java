@@ -3,12 +3,16 @@ package net.thumbtack.school.buscompany.service;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import net.thumbtack.school.buscompany.dto.response.error.ErrorDtoResponse;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ErrorCode;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.ArrayList;
@@ -29,12 +33,40 @@ public class GlobalErrorHandler {
         return new ErrorDtoResponse(errors);
     }
 
-    @ExceptionHandler(CheckedException.class)
+    @ExceptionHandler(ServerException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ResponseBody
-    public ErrorDtoResponse handleBadClientRequests(CheckedException ex){
+    public ErrorDtoResponse handleBadClientRequests(ServerException ex){
         List<Error> errors = new ArrayList<>();
         errors.add(new Error(ex.getErrorCode().toString(), ex.getField(), ex.getMessage()));
+        return new ErrorDtoResponse(errors);
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseBody
+    public ErrorDtoResponse handleMethodNotAllowedRequests(HttpRequestMethodNotSupportedException ex) {
+        List<Error> errors = new ArrayList<>();
+        errors.add(new Error(ErrorCode.METHOD_NOT_ALLOWED.toString(), ex.getMethod(), ErrorCode.METHOD_NOT_ALLOWED.getMessage()));
+        return new ErrorDtoResponse(errors);
+    }
+
+    @ExceptionHandler(NoHandlerFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ResponseBody
+    public ErrorDtoResponse handleNotFoundRequests(NoHandlerFoundException ex) {
+        List<Error> errors = new ArrayList<>();
+        errors.add(new Error(ErrorCode.NOT_FOUND.toString(), ex.getRequestURL(), ErrorCode.NOT_FOUND.getMessage()));
+
+        return new ErrorDtoResponse(errors);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ErrorDtoResponse handleMessageNotReadableRequests(HttpMessageNotReadableException ex) {
+        List<Error> errors = new ArrayList<>();
+        errors.add(new Error(ErrorCode.WRONG_JSON_FORMAT.toString(), ErrorCode.WRONG_JSON_FORMAT.getField(), ErrorCode.WRONG_JSON_FORMAT.getMessage()));
         return new ErrorDtoResponse(errors);
     }
 

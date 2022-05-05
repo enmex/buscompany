@@ -24,7 +24,10 @@ public enum ErrorCode {
     PLACE_IS_OCCUPIED("Данное место уже занято другим пассажиром", "place"),
     PLACE_IS_ALREADY_TAKEN_BY_THIS_PASSENGER("Данное место уже занято данным пассажиром", "place"),
     NO_DATES_ON_THIS_SCHEDULE("Некорректное расписание: отсутствуют даты", "schedule"),
-    NOT_CLIENT_ORDER("Заказ не является заказом данного клиента", "order");
+    NOT_CLIENT_ORDER("Заказ не является заказом данного клиента", "order"),
+    METHOD_NOT_ALLOWED("Данный запрос не может быть обработан", "method"),
+    NOT_FOUND("Указанный ресурс не найден", "recourse"),
+    WRONG_JSON_FORMAT("Некорректно введен json-запрос", "JSON");
 
     private final String message;
     private final String field;

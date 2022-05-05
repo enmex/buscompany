@@ -39,7 +39,7 @@ CREATE TABLE `client` (
 CREATE TABLE bus (
 	id INT NOT NULL AUTO_INCREMENT,
     bus_name VARCHAR (50) NOT NULL,
-    seats_number INT DEFAULT 50,
+    places_number INT DEFAULT 50,
     PRIMARY KEY (id),
     UNIQUE (bus_name)
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
@@ -85,7 +85,7 @@ CREATE TABLE passenger (
     FOREIGN KEY(id_order) REFERENCES `order`(id) ON DELETE CASCADE
 ) ENGINE=INNODB DEFAULT CHARSET=utf8;
 
-CREATE TABLE seats (
+CREATE TABLE places (
     id_trip_date INT NOT NULL,
     id_passenger INT,
     place_number INT NOT NULL,

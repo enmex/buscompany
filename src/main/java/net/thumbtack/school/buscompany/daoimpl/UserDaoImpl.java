@@ -1,7 +1,7 @@
 package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.UserDao;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
@@ -12,7 +12,7 @@ import java.util.*;
 
 public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     @Override
-    public String register(User user) throws CheckedException {
+    public String register(User user) throws ServerException {
         try(SqlSession session = getSession()){
             String uuid;
             try{
@@ -35,9 +35,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.USER_ALREADY_EXISTS);
+                    throw new ServerException(ErrorCode.USER_ALREADY_EXISTS);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
             return uuid;
@@ -45,7 +45,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public void unregister(User user) throws CheckedException {
+    public void unregister(User user) throws ServerException {
         try(SqlSession session = getSession()){
             try{
                 getUserMapper(session).deleteUser(user);
@@ -53,16 +53,16 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.USER_NOT_EXISTS);
+                    throw new ServerException(ErrorCode.USER_NOT_EXISTS);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
     }
 
     @Override
-    public User getByLogin(String login) throws CheckedException {
+    public User getByLogin(String login) throws ServerException {
         User user;
         try(SqlSession session = getSession()){
             try{
@@ -78,9 +78,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getMessage().contains("Cannot find user")){
-                    throw new CheckedException(ErrorCode.INVALID_LOGIN_OR_PASSWORD);
+                    throw new ServerException(ErrorCode.INVALID_LOGIN_OR_PASSWORD);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -88,7 +88,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public User getBySession(String uuid) throws CheckedException {
+    public User getBySession(String uuid) throws ServerException {
         User user;
         try(SqlSession session = getSession()){
             try{
@@ -103,9 +103,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getMessage().contains("Cannot find user")){
-                    throw new CheckedException(ErrorCode.USER_IS_OFFLINE);
+                    throw new ServerException(ErrorCode.USER_IS_OFFLINE);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -113,7 +113,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public String insertSession(User user) throws CheckedException {
+    public String insertSession(User user) throws ServerException {
         String uuid;
         try(SqlSession session = getSession()){
             try{
@@ -123,9 +123,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.UNABLE_TO_OPEN_SESSION);
+                    throw new ServerException(ErrorCode.UNABLE_TO_OPEN_SESSION);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -133,7 +133,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public void closeSession(String uuid) throws CheckedException {
+    public void closeSession(String uuid) throws ServerException {
         try(SqlSession session = getSession()){
             try{
                 getUserMapper(session).closeSession(uuid);
@@ -141,16 +141,16 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.UNABLE_TO_CLOSE_SESSION);
+                    throw new ServerException(ErrorCode.UNABLE_TO_CLOSE_SESSION);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
     }
 
     @Override
-    public String getUserType(User user) throws CheckedException {
+    public String getUserType(User user) throws ServerException {
         String userType;
         try(SqlSession session = getSession()){
             try{
@@ -159,9 +159,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.USER_NOT_EXISTS);
+                    throw new ServerException(ErrorCode.USER_NOT_EXISTS);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -169,7 +169,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateUser(User user) throws CheckedException {
+    public void updateUser(User user) throws ServerException {
         try(SqlSession session = getSession()){
             try{
                 getUserMapper(session).updateUser(user);
@@ -186,9 +186,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch(RuntimeException ex){
                 session.rollback();
                 if(ex.getCause() instanceof SQLIntegrityConstraintViolationException){
-                    throw new CheckedException(ErrorCode.USER_NOT_EXISTS);
+                    throw new ServerException(ErrorCode.USER_NOT_EXISTS);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -204,7 +204,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -221,7 +221,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -229,7 +229,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public Trip getTripById(int tripId) throws CheckedException {
+    public Trip getTripById(int tripId) throws ServerException {
         Trip trip;
         try(SqlSession session = getSession()){
             try{
@@ -241,9 +241,9 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 if(ex.getMessage().contains("Unable to find trip")){
-                    throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
+                    throw new ServerException(ErrorCode.TRIP_NOT_EXISTS);
                 }
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -260,7 +260,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -277,7 +277,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -294,7 +294,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -310,7 +310,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -330,7 +330,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -349,7 +349,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -368,7 +368,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -387,7 +387,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -406,7 +406,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -425,7 +425,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -444,7 +444,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -464,7 +464,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -472,7 +472,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
     }
 
     @Override
-    public Bus getBus(String busName) throws CheckedException {
+    public Bus getBus(String busName) throws ServerException {
         Bus bus;
         try(SqlSession session = getSession()){
             try{
@@ -480,7 +480,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
         }
         return bus;
@@ -494,7 +494,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -508,7 +508,7 @@ public class UserDaoImpl extends BaseDaoImpl implements UserDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }

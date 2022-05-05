@@ -2,7 +2,7 @@ package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.AdminDao;
 
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.*;
 import org.apache.ibatis.session.SqlSession;
@@ -12,7 +12,7 @@ import java.util.List;
 public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
 
     @Override
-    public List<Client> getAllClients() throws CheckedException {
+    public List<Client> getAllClients() throws ServerException {
         List<Client> clients;
         try(SqlSession session = getSession()){
             try{
@@ -20,7 +20,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -28,7 +28,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public List<Bus> getAllBuses() throws CheckedException {
+    public List<Bus> getAllBuses() throws ServerException {
         List<Bus> buses;
         try(SqlSession session = getSession()){
             try{
@@ -36,7 +36,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -44,7 +44,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public void registerTrip(Trip trip) throws CheckedException {
+    public void registerTrip(Trip trip) throws ServerException {
         try(SqlSession session = getSession()){
             try{
                 getTripMapper(session).registerTrip(trip);
@@ -56,14 +56,14 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             catch (RuntimeException ex){
                 session.rollback();
                 ex.printStackTrace();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
     }
 
     @Override
-    public boolean containsBus(String busName) throws CheckedException {
+    public boolean containsBus(String busName) throws ServerException {
         boolean containsBus;
         try(SqlSession session = getSession()){
             try{
@@ -71,7 +71,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -79,7 +79,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
     }
 
     @Override
-    public void updateTrip(Trip trip) throws CheckedException {
+    public void updateTrip(Trip trip) throws ServerException {
         try(SqlSession session = getSession()){
             try{
                 getTripMapper(session).updateTrip(trip);
@@ -91,7 +91,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch(RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -105,7 +105,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -119,7 +119,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -133,7 +133,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -147,7 +147,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -162,7 +162,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -183,7 +183,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
@@ -197,7 +197,7 @@ public class AdminDaoImpl extends BaseDaoImpl implements AdminDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }

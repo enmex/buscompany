@@ -3,7 +3,7 @@ package net.thumbtack.school.buscompany.place;
 import net.thumbtack.school.buscompany.BaseTest;
 import net.thumbtack.school.buscompany.controller.PlaceController;
 import net.thumbtack.school.buscompany.cookie.BusCompanyCookies;
-import net.thumbtack.school.buscompany.dto.request.client.ChooseSeatDtoRequest;
+import net.thumbtack.school.buscompany.dto.request.client.ChoosePlaceDtoRequest;
 import net.thumbtack.school.buscompany.dto.request.client.PassengerDtoRequest;
 import net.thumbtack.school.buscompany.dto.response.admin.RegisterTripDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.client.OrderTicketDtoResponse;
@@ -62,14 +62,14 @@ public class PlaceControllerBadRequestsTest extends BaseTest {
 
         int orderId = getContent(registerOrder(client, tripId, "2022-09-02", passengers), OrderTicketDtoResponse.class).getOrderId();
 
-        ChooseSeatDtoRequest request1 = new ChooseSeatDtoRequest();
+        ChoosePlaceDtoRequest request1 = new ChoosePlaceDtoRequest();
         request1.setFirstName("Иван");
         request1.setLastName("Иванов");
         request1.setPassport("123");
         request1.setOrderId(orderId);
         request1.setPlace(46);
 
-        ChooseSeatDtoRequest request2 = new ChooseSeatDtoRequest();
+        ChoosePlaceDtoRequest request2 = new ChoosePlaceDtoRequest();
         request2.setFirstName("Михаил");
         request2.setLastName("Смирнов");
         request2.setPassport("456");

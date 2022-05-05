@@ -11,16 +11,14 @@ import java.util.List;
 @Component
 public interface ClientDao {
     void insertOrder(Order order);
-    List<Integer> getFreeSeats(Order order);
-    void changeSeat(Place place);
+    List<Integer> getFreePlaces(Order order);
+    void changePlace(Place place);
     void cancelOrder(int orderId);
 
     boolean isClientOrder(User user, Order order);
 
-    int takeSeat(Place place);
+    int takePlace(Place place);
     void insertPassenger(Order order, Passenger passenger);
-
-    int takeSeats(Order order);
 
     int getIdTripDate(Order order);
 }

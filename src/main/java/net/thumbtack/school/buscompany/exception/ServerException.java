@@ -1,9 +1,9 @@
 package net.thumbtack.school.buscompany.exception;
 
-public class CheckedException extends RuntimeException{
+public class ServerException extends RuntimeException{
     private final ErrorCode errorCode;
 
-    public CheckedException(final ErrorCode errorCode){
+    public ServerException(final ErrorCode errorCode){
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }

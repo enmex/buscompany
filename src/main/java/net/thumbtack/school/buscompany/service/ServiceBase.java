@@ -6,7 +6,7 @@ import net.thumbtack.school.buscompany.dao.BaseDao;
 import net.thumbtack.school.buscompany.dao.ClientDao;
 import net.thumbtack.school.buscompany.dao.UserDao;
 import net.thumbtack.school.buscompany.daoimpl.BaseDaoImpl;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.model.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,14 +52,14 @@ public class ServiceBase {
 
     protected Admin getAdmin(String cookieValue){
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
         refreshSession(cookieValue);
 
         User user = userDao.getBySession(cookieValue);
 
         if(user.getUserType() != UserType.ADMIN){
-            throw new CheckedException(ErrorCode.OPERATION_NOT_ALLOWED);
+            throw new ServerException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
         return (Admin) user;
@@ -67,14 +67,14 @@ public class ServiceBase {
 
     protected Client getClient(String cookieValue){
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
         refreshSession(cookieValue);
 
         User user = userDao.getBySession(cookieValue);
 
         if(user.getUserType() != UserType.CLIENT){
-            throw new CheckedException(ErrorCode.OPERATION_NOT_ALLOWED);
+            throw new ServerException(ErrorCode.OPERATION_NOT_ALLOWED);
         }
 
         return (Client) user;
@@ -109,7 +109,7 @@ public class ServiceBase {
             }
 
             if(dates.size() == 0) {
-                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+                throw new ServerException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
             }
 
             return dates;
@@ -125,7 +125,7 @@ public class ServiceBase {
             }
 
             if(dates.size() == 0) {
-                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+                throw new ServerException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
             }
 
             return dates;
@@ -141,7 +141,7 @@ public class ServiceBase {
             }
 
             if(dates.size() == 0) {
-                throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+                throw new ServerException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
             }
 
             return dates;
@@ -175,7 +175,7 @@ public class ServiceBase {
         }
 
         if(dates.size() == 0) {
-            throw new CheckedException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
+            throw new ServerException(ErrorCode.NO_DATES_ON_THIS_SCHEDULE);
         }
 
         return dates;
@@ -212,7 +212,12 @@ public class ServiceBase {
         return ResponseCookie.from(BusCompanyCookies.JAVASESSIONID, "").maxAge(0L).build();
     }
 
-    protected boolean inBetween(LocalDate date, List<TripDate> dates){
-        return date.isAfter(dates.get(0).getDate()) && dates.get(dates.size() - 1).getDate().isAfter(date);
+    protected boolean isDateOfTrip(LocalDate date, List<TripDate> dates){
+        for(TripDate tripDate : dates) {
+            if(tripDate.getDate().equals(date)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -68,7 +68,7 @@
         SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
                 login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
         `order`.id as id_order_order, trip_date.id as id_trip_date_order,
-        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.places_number as bus_place_count,
         trip.bus_name as bus_name_order, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport
@@ -85,7 +85,7 @@
         SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
         login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
         `order`.id as id_order_order, trip_date.id as id_trip_date_order,
-        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.places_number as bus_place_count,
         trip.bus_name as bus_name_order, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport
@@ -103,7 +103,7 @@
         SELECT `user`.id as id_client, `user`.firstname as client_firstname, `user`.lastname as client_lastname, patronymic as client_patronymic,
         login as client_login, `password` as client_password, email as client_email, phone as client_phone, user_type,
         `order`.id as id_order_order, trip_date.id as id_trip_date_order,
-        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.seats_number as bus_place_count,
+        trip_date.id_trip as id_trip_order, trip_date.`date` as date_of_trip_order, bus.id as id_bus, bus.places_number as bus_place_count,
         trip.bus_name as bus_name_order, trip.from_station as from_station_order,
         trip.to_station as to_station_order, trip.`start` as start_order, trip.duration as duration_order, trip.price as price_order, passenger.id as passenger_id,
         passenger.firstname as passenger_firstname, passenger.lastname as passenger_lastname, passenger.passport as passenger_passport

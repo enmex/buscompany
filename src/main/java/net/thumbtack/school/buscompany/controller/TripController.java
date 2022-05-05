@@ -5,7 +5,7 @@ import net.thumbtack.school.buscompany.dto.request.admin.trip.RegisterTripDtoReq
 import net.thumbtack.school.buscompany.dto.request.admin.trip.UpdateTripDtoRequest;
 import net.thumbtack.school.buscompany.dto.response.admin.*;
 import net.thumbtack.school.buscompany.dto.response.common.trip.GetTripsDtoResponse;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.service.AdminService;
 import net.thumbtack.school.buscompany.service.UserService;
 import org.springframework.http.MediaType;
@@ -34,14 +34,14 @@ public class TripController {
     @PutMapping(value = "/{tripId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public UpdateTripDtoResponse updateTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                             @PathVariable("tripId") String tripId,
-                                                            @RequestBody @Valid UpdateTripDtoRequest request) throws CheckedException {
+                                                            @RequestBody @Valid UpdateTripDtoRequest request) throws ServerException {
         return adminService.updateTrip(cookieValue, tripId, request);
     }
 
 
     @DeleteMapping(value = "/{tripId}")
     public DeleteTripDtoResponse deleteTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                                            @PathVariable("tripId") String tripId) throws CheckedException {
+                                                            @PathVariable("tripId") String tripId) throws ServerException {
         return adminService.deleteTrip(cookieValue, tripId);
     }
 

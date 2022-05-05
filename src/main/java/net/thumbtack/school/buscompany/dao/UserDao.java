@@ -1,6 +1,6 @@
 package net.thumbtack.school.buscompany.dao;
 
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.model.Bus;
 import net.thumbtack.school.buscompany.model.Order;
 import net.thumbtack.school.buscompany.model.Trip;
@@ -13,15 +13,15 @@ import java.util.Set;
 
 @Component
 public interface UserDao {
-    String register(User user) throws CheckedException;
-    void unregister(User user) throws CheckedException;
-    User getByLogin(String login) throws CheckedException;
-    User getBySession(String uuid) throws CheckedException;
-    String insertSession(User user) throws CheckedException;
-    void closeSession(String uuid) throws CheckedException;
-    String getUserType(User user) throws CheckedException;
-    void updateUser(User user) throws CheckedException;
-    Trip getTripById(int tripId) throws CheckedException;
+    String register(User user) throws ServerException;
+    void unregister(User user) throws ServerException;
+    User getByLogin(String login) throws ServerException;
+    User getBySession(String uuid) throws ServerException;
+    String insertSession(User user) throws ServerException;
+    void closeSession(String uuid) throws ServerException;
+    String getUserType(User user) throws ServerException;
+    void updateUser(User user) throws ServerException;
+    Trip getTripById(int tripId) throws ServerException;
     List<Trip> getTripsFromStation(String fromStation);
     List<Trip> getTripsToStation(String toStation);
     List<Trip> getTripsByBus(String busName);
@@ -36,7 +36,7 @@ public interface UserDao {
     List<Order> getOrdersToDate(LocalDate toDate);
     List<Order> getOrdersByClientId(int clientId);
     Order getOrderById(int orderId);
-    Bus getBus(String busName) throws CheckedException;
+    Bus getBus(String busName) throws ServerException;
     void updateSession(String uuid);
     void clearSessions(int userIdleTimeout);
 }

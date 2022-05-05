@@ -16,7 +16,7 @@ import net.thumbtack.school.buscompany.dto.response.common.profile.GetProfileDto
 import net.thumbtack.school.buscompany.dto.response.common.settings.GetSettingsDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.trip.*;
 import net.thumbtack.school.buscompany.dto.response.common.unregister.UnregisterUserDtoResponse;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mapstruct.*;
 import net.thumbtack.school.buscompany.model.*;
@@ -48,14 +48,14 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<LoginUserDtoResponse> loginUser(String cookieValue, LoginDtoRequest request){
         if(cookieValue != null){
-            throw new CheckedException(ErrorCode.OFFLINE_OPERATION);
+            throw new ServerException(ErrorCode.OFFLINE_OPERATION);
         }
 
         User user = userDao.getByLogin(request.getLogin());
         UserType userType = user.getUserType();
 
         if(!user.getPassword().equals(request.getPassword())){
-            throw new CheckedException(ErrorCode.INVALID_LOGIN_OR_PASSWORD);
+            throw new ServerException(ErrorCode.INVALID_LOGIN_OR_PASSWORD);
         }
 
         String uuid = userDao.insertSession(user);
@@ -81,7 +81,7 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<LogoutUserDtoResponse> logoutUser(String cookieValue) {
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
@@ -96,7 +96,7 @@ public class UserService extends ServiceBase{
 
     public ResponseEntity<UnregisterUserDtoResponse> unregisterUser(String cookieValue) {
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
@@ -112,7 +112,7 @@ public class UserService extends ServiceBase{
 
     public GetProfileDtoResponse getUserProfile(String cookieValue) {
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
@@ -137,7 +137,7 @@ public class UserService extends ServiceBase{
                                              String toStation, String busName,
                                              String fromDate, String toDate, String clientId)  {
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
 
         User user = userDao.getBySession(cookieValue);
@@ -162,7 +162,7 @@ public class UserService extends ServiceBase{
                 LocalDate.parse(fromDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             }
             catch (DateTimeParseException ex){
-                throw new CheckedException(ErrorCode.INVALID_DATE);
+                throw new ServerException(ErrorCode.INVALID_DATE);
             }
 
             orders.retainAll(userDao.getOrdersFromDate(parseDate(fromDate)));
@@ -173,7 +173,7 @@ public class UserService extends ServiceBase{
                 LocalDate.parse(toDate, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             }
             catch (DateTimeParseException ex){
-                throw new CheckedException(ErrorCode.INVALID_DATE);
+                throw new ServerException(ErrorCode.INVALID_DATE);
             }
 
             orders.retainAll(userDao.getOrdersToDate(parseDate(toDate)));
@@ -186,7 +186,7 @@ public class UserService extends ServiceBase{
                     Integer.parseInt(clientId);
                 }
                 catch (NumberFormatException ex){
-                    throw new CheckedException(ErrorCode.INVALID_ID);
+                    throw new ServerException(ErrorCode.INVALID_ID);
                 }
 
                 orders.retainAll(userDao.getOrdersByClientId(Integer.parseInt(clientId)));
@@ -229,7 +229,7 @@ public class UserService extends ServiceBase{
                                            String toStation, String busName,
                                            String fromDate, String toDate) {
         if(cookieValue == null){
-            throw new CheckedException(ErrorCode.ONLINE_OPERATION);
+            throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
         User user = userDao.getBySession(cookieValue);
         UserType userType = user.getUserType();
@@ -253,7 +253,7 @@ public class UserService extends ServiceBase{
                 parseDate(fromDate);
             }
             catch (DateTimeParseException ex){
-                throw new CheckedException(ErrorCode.INVALID_DATE);
+                throw new ServerException(ErrorCode.INVALID_DATE);
             }
 
             trips.retainAll(userDao.getTripsFromDate(parseDate(fromDate)));
@@ -264,7 +264,7 @@ public class UserService extends ServiceBase{
                 parseDate(toDate);
             }
             catch (DateTimeParseException ex){
-                throw new CheckedException(ErrorCode.INVALID_DATE);
+                throw new ServerException(ErrorCode.INVALID_DATE);
             }
 
             trips.retainAll(userDao.getTripsToDate(parseDate(toDate)));

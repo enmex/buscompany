@@ -13,14 +13,14 @@ public interface BusMybatisMapper {
     @Select("SELECT * FROM bus")
     @Results({
             @Result(column = "bus_name", property = "busName"),
-            @Result(column = "seats_number", property = "placeCount")
+            @Result(column = "places_number", property = "placeCount")
     })
     List<Bus> getAllBuses();
 
     @Select("SELECT * FROM bus WHERE bus_name = #{busName}")
     @Results({
         @Result(column = "bus_name", property = "busName"),
-        @Result(column = "seats_number", property = "placeCount")
+        @Result(column = "places_number", property = "placeCount")
     })
     Bus getBus(@Param("busName") String busName);
 

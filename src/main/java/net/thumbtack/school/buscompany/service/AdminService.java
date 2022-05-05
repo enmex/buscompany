@@ -12,7 +12,7 @@ import net.thumbtack.school.buscompany.dto.response.admin.*;
 import net.thumbtack.school.buscompany.dto.response.common.profile.GetClientProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.profile.UpdateUserProfileDtoResponse;
 import net.thumbtack.school.buscompany.dto.response.common.register.RegisterAdminDtoResponse;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mapstruct.AdminMapstructMapper;
 import net.thumbtack.school.buscompany.mapper.mapstruct.BusMapstructMapper;
@@ -58,7 +58,7 @@ public class AdminService extends ServiceBase{
         String oldPassword = request.getOldPassword();
 
         if(!oldPassword.equals(admin.getPassword())){
-            throw new CheckedException(ErrorCode.INVALID_PASSWORD);
+            throw new ServerException(ErrorCode.INVALID_PASSWORD);
         }
 
         admin.setFirstName(request.getFirstName());
@@ -174,7 +174,7 @@ public class AdminService extends ServiceBase{
             idTrip = Integer.parseInt(tripId);
         }
         catch (NumberFormatException ex){
-            throw new CheckedException(ErrorCode.INVALID_ID);
+            throw new ServerException(ErrorCode.INVALID_ID);
         }
 
         Admin admin = getAdmin(cookieValue);
@@ -183,7 +183,7 @@ public class AdminService extends ServiceBase{
         Schedule scheduleTrip = adminDao.getSchedule(trip);
 
         if(trip == null){
-            throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
+            throw new ServerException(ErrorCode.TRIP_NOT_EXISTS);
         }
 
         if(!adminDao.containsBus(request.getBusName())){
@@ -203,7 +203,7 @@ public class AdminService extends ServiceBase{
 
         if(request.getDates() != null){
             if(scheduleTrip != null){
-                throw new CheckedException(ErrorCode.TRIP_IS_REGULAR);
+                throw new ServerException(ErrorCode.TRIP_IS_REGULAR);
             }
 
             trip.setTripDates(parseDates(request.getDates()));
@@ -252,7 +252,7 @@ public class AdminService extends ServiceBase{
             idTrip = Integer.parseInt(tripId);
         }
         catch (NumberFormatException ex){
-            throw new CheckedException(ErrorCode.INVALID_ID);
+            throw new ServerException(ErrorCode.INVALID_ID);
         }
 
         Admin admin = getAdmin(cookieValue);
@@ -260,7 +260,7 @@ public class AdminService extends ServiceBase{
         Trip trip = userDao.getTripById(idTrip);
 
         if(trip == null){
-            throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
+            throw new ServerException(ErrorCode.TRIP_NOT_EXISTS);
         }
 
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " deleted trip from "
@@ -277,7 +277,7 @@ public class AdminService extends ServiceBase{
              idTrip = Integer.parseInt(tripId);
          }
          catch (NumberFormatException ex){
-             throw new CheckedException(ErrorCode.INVALID_ID);
+             throw new ServerException(ErrorCode.INVALID_ID);
          }
 
         Admin admin = getAdmin(cookieValue);
@@ -285,7 +285,7 @@ public class AdminService extends ServiceBase{
         Trip trip = userDao.getTripById(idTrip);
 
         if(trip == null){
-            throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
+            throw new ServerException(ErrorCode.TRIP_NOT_EXISTS);
         }
 
         GetTripProfileDtoResponse response;
@@ -314,7 +314,7 @@ public class AdminService extends ServiceBase{
             idTrip = Integer.parseInt(tripId);
         }
         catch (NumberFormatException ex){
-            throw new CheckedException(ErrorCode.INVALID_ID);
+            throw new ServerException(ErrorCode.INVALID_ID);
         }
 
         Admin admin = getAdmin(cookieValue);
@@ -322,7 +322,7 @@ public class AdminService extends ServiceBase{
         Trip trip = userDao.getTripById(idTrip);
 
         if(trip == null){
-            throw new CheckedException(ErrorCode.TRIP_NOT_EXISTS);
+            throw new ServerException(ErrorCode.TRIP_NOT_EXISTS);
         }
 
         trip.setApproved(true);

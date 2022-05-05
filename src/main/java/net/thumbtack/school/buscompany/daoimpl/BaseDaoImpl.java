@@ -1,7 +1,7 @@
 package net.thumbtack.school.buscompany.daoimpl;
 
 import net.thumbtack.school.buscompany.dao.BaseDao;
-import net.thumbtack.school.buscompany.exception.CheckedException;
+import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.exception.ErrorCode;
 import net.thumbtack.school.buscompany.mapper.mybatis.*;
 import net.thumbtack.school.buscompany.util.MyBatisUtils;
@@ -53,7 +53,7 @@ public class BaseDaoImpl implements BaseDao {
             }
             catch (RuntimeException ex){
                 session.rollback();
-                throw new CheckedException(ErrorCode.DATABASE_ERROR);
+                throw new ServerException(ErrorCode.DATABASE_ERROR);
             }
             session.commit();
         }
