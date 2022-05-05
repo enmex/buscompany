@@ -26,7 +26,7 @@ public class AdminController {
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public UpdateUserProfileDtoResponse updateAdminProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<UpdateUserProfileDtoResponse> updateAdminProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                                            @RequestBody @Valid UpdateAdminProfileDtoRequest request){
         return adminService.updateAdminProfile(cookieValue, request);
     }

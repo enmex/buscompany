@@ -8,6 +8,7 @@ import net.thumbtack.school.buscompany.dto.response.common.trip.GetOrdersDtoResp
 import net.thumbtack.school.buscompany.service.ClientService;
 import net.thumbtack.school.buscompany.service.UserService;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,13 +27,13 @@ public class OrderController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public OrderTicketDtoResponse orderTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                            @RequestBody @Valid OrderTicketDtoRequest request){
+    public ResponseEntity<OrderTicketDtoResponse> orderTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+                                                            @RequestBody @Valid OrderTicketDtoRequest request){
         return clientService.orderTrip(cookieValue, request);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetOrdersDtoResponse getAllOrders(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<GetOrdersDtoResponse> getAllOrders(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                              @RequestParam(required = false) String fromStation,
                                              @RequestParam(required = false) String toStation,
                                              @RequestParam(required = false) String busName,
@@ -43,7 +44,7 @@ public class OrderController {
     }
 
     @DeleteMapping(value = "/{orderId}")
-    public CancelOrderDtoResponse cancelOrder(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<CancelOrderDtoResponse> cancelOrder(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                               @PathVariable String orderId){
         return clientService.cancelOrder(cookieValue, orderId);
     }

@@ -6,6 +6,7 @@ import net.thumbtack.school.buscompany.dto.response.client.ChoosePlaceDtoRespons
 import net.thumbtack.school.buscompany.dto.response.client.GetFreePlacesDtoResponse;
 import net.thumbtack.school.buscompany.service.ClientService;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -20,13 +21,13 @@ public class PlaceController {
     }
 
     @GetMapping(value = "/{orderId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetFreePlacesDtoResponse getFreePlaces(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
-                                                  @PathVariable String orderId){
+    public ResponseEntity<GetFreePlacesDtoResponse> getFreePlaces(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+                                                                  @PathVariable String orderId){
         return clientService.getFreePlaces(cookieValue, orderId);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ChoosePlaceDtoResponse choosePlace(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<ChoosePlaceDtoResponse> choosePlace(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                               @RequestBody @Valid ChoosePlaceDtoRequest request){
         return clientService.choosePlace(cookieValue, request);
     }

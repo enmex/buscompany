@@ -30,12 +30,12 @@ public class ClientController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetAllClientsDtoResponse getAllClients(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue){
+    public ResponseEntity<GetAllClientsDtoResponse> getAllClients(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue){
         return adminService.getAllClients(cookieValue);
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public UpdateUserProfileDtoResponse updateClientProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<UpdateUserProfileDtoResponse> updateClientProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                                             @RequestBody @Valid UpdateClientProfileDtoRequest request){
         return clientService.updateClientProfile(cookieValue, request);
     }

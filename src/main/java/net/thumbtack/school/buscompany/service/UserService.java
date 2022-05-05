@@ -110,7 +110,7 @@ public class UserService extends ServiceBase{
         );
     }
 
-    public GetProfileDtoResponse getUserProfile(String cookieValue) {
+    public ResponseEntity<GetProfileDtoResponse> getUserProfile(String cookieValue) {
         if(cookieValue == null){
             throw new ServerException(ErrorCode.ONLINE_OPERATION);
         }
@@ -129,11 +129,13 @@ public class UserService extends ServiceBase{
             response = ClientMapstructMapper.INSTANCE.toGetProfileDto(client);
         }
 
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
         LOGGER.info("User " + user.getLogin() + " got his profile info");
-        return response;
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public GetOrdersDtoResponse getAllOrders(String cookieValue, String fromStation,
+    public ResponseEntity<GetOrdersDtoResponse> getAllOrders(String cookieValue, String fromStation,
                                              String toStation, String busName,
                                              String fromDate, String toDate, String clientId)  {
         if(cookieValue == null){
@@ -216,16 +218,19 @@ public class UserService extends ServiceBase{
         }
 
         LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got the information about orders with special params");
-        return new GetOrdersDtoResponse(responseList);
+
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetOrdersDtoResponse(responseList));
     }
 
-    public GetSettingsDtoResponse getSettings(String cookieValue) {
-        return new GetSettingsDtoResponse(
+    public ResponseEntity<GetSettingsDtoResponse> getSettings(String cookieValue) {
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetSettingsDtoResponse(
                 maxNameLength, userIdleTimeout, minPasswordLength
-        );
+        ));
     }
 
-    public GetTripsDtoResponse getAllTrips(String cookieValue, String fromStation,
+    public ResponseEntity<GetTripsDtoResponse> getAllTrips(String cookieValue, String fromStation,
                                            String toStation, String busName,
                                            String fromDate, String toDate) {
         if(cookieValue == null){
@@ -342,7 +347,9 @@ public class UserService extends ServiceBase{
         }
         LOGGER.info("User-" + user.getUserType() + " " + user.getLogin() + " got the information about trips with special params");
 
-        return new GetTripsDtoResponse(responseList);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetTripsDtoResponse(responseList));
     }
 
     public ClearDatabaseDtoResponse clearAll() {

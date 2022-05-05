@@ -9,6 +9,7 @@ import net.thumbtack.school.buscompany.exception.ServerException;
 import net.thumbtack.school.buscompany.service.AdminService;
 import net.thumbtack.school.buscompany.service.UserService;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,14 +26,14 @@ public class TripController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public RegisterTripDtoResponse addTrip(
+    public ResponseEntity<RegisterTripDtoResponse> addTrip(
             @CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
             @RequestBody @Valid RegisterTripDtoRequest request){
         return adminService.addTrip(cookieValue, request);
     }
 
     @PutMapping(value = "/{tripId}", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public UpdateTripDtoResponse updateTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<UpdateTripDtoResponse> updateTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                             @PathVariable("tripId") String tripId,
                                                             @RequestBody @Valid UpdateTripDtoRequest request) throws ServerException {
         return adminService.updateTrip(cookieValue, tripId, request);
@@ -40,25 +41,25 @@ public class TripController {
 
 
     @DeleteMapping(value = "/{tripId}")
-    public DeleteTripDtoResponse deleteTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<DeleteTripDtoResponse> deleteTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                             @PathVariable("tripId") String tripId) throws ServerException {
         return adminService.deleteTrip(cookieValue, tripId);
     }
 
     @GetMapping(value = "/{tripId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetTripProfileDtoResponse getTripInfo(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<GetTripProfileDtoResponse> getTripInfo(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                                  @PathVariable("tripId") String tripId) {
         return adminService.getTripInfo(cookieValue, tripId);
     }
 
     @PostMapping(value = "/{tripId}/approve", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ApproveTripDtoResponse approveTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<ApproveTripDtoResponse> approveTrip(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                               @PathVariable("tripId") String tripId) {
         return adminService.approveTrip(cookieValue, tripId);
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetTripsDtoResponse getAllTrips(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
+    public ResponseEntity<GetTripsDtoResponse> getAllTrips(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue,
                                            @RequestParam(required = false) String fromStation,
                                            @RequestParam(required = false) String toStation,
                                            @RequestParam(required = false) String busName,

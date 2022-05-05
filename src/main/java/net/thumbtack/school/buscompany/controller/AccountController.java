@@ -24,7 +24,7 @@ public class AccountController {
     }
 
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public GetProfileDtoResponse getUserProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue){
+    public ResponseEntity<GetProfileDtoResponse> getUserProfile(@CookieValue(required = false, name = BusCompanyCookies.JAVASESSIONID) String cookieValue){
         return userService.getUserProfile(cookieValue);
     }
 }

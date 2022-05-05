@@ -47,7 +47,7 @@ public class ClientService extends ServiceBase{
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public UpdateUserProfileDtoResponse updateClientProfile(String cookieValue, UpdateClientProfileDtoRequest request) {
+    public ResponseEntity<UpdateUserProfileDtoResponse> updateClientProfile(String cookieValue, UpdateClientProfileDtoRequest request) {
         Client client = getClient(cookieValue);
 
         if(!client.getPassword().equals(request.getOldPassword())){
@@ -64,10 +64,12 @@ public class ClientService extends ServiceBase{
         LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " just updated his profile");
         userDao.updateUser(client);
 
-        return ClientMapstructMapper.INSTANCE.toUpdateDto(client);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(ClientMapstructMapper.INSTANCE.toUpdateDto(client));
     }
 
-    public OrderTicketDtoResponse orderTrip(String cookieValue, OrderTicketDtoRequest request) {
+    public ResponseEntity<OrderTicketDtoResponse> orderTrip(String cookieValue, OrderTicketDtoRequest request) {
         Client client = getClient(cookieValue);
 
         Order order = OrderMapstructMapper.INSTANCE.fromDtoRequest(request);
@@ -112,10 +114,12 @@ public class ClientService extends ServiceBase{
         response.setTotalPrice(order.getPassengersNumber() * order.getTrip().getPrice());
 
         LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " ordered the trip from " + trip.getFromStation() + " to " + trip.getToStation());
-        return response;
+
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public CancelOrderDtoResponse cancelOrder(String cookieValue, String orderId) {
+    public ResponseEntity<CancelOrderDtoResponse> cancelOrder(String cookieValue, String orderId) {
         Client client = getClient(cookieValue);
 
         int idOrder = Integer.parseInt(orderId);
@@ -134,10 +138,12 @@ public class ClientService extends ServiceBase{
 
         LOGGER.info("User-" + client.getUserType() + " " + client.getLogin() + " canceled his order to trip from "
                 + order.getTrip().getFromStation() + " to " + order.getTrip().getToStation());
-        return new CancelOrderDtoResponse();
+
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new CancelOrderDtoResponse());
     }
 
-    public GetFreePlacesDtoResponse getFreePlaces(String cookieValue, String orderId) {
+    public ResponseEntity<GetFreePlacesDtoResponse> getFreePlaces(String cookieValue, String orderId) {
         try{
             Integer.parseInt(orderId);
         }
@@ -155,10 +161,12 @@ public class ClientService extends ServiceBase{
 
         List<Integer> freePlaces = clientDao.getFreePlaces(order);
 
-        return new GetFreePlacesDtoResponse(freePlaces);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetFreePlacesDtoResponse(freePlaces));
     }
 
-    public ChoosePlaceDtoResponse choosePlace(String cookieValue, ChoosePlaceDtoRequest request) {
+    public ResponseEntity<ChoosePlaceDtoResponse> choosePlace(String cookieValue, ChoosePlaceDtoRequest request) {
         getClient(cookieValue);
 
         Order order = userDao.getOrderById(request.getOrderId());
@@ -191,6 +199,8 @@ public class ClientService extends ServiceBase{
         LOGGER.info("User chose place for passenger " + passenger.getLastName() + " at the trip from "
                 + order.getTrip().getFromStation() + " to " + order.getTrip().getToStation());
 
-        return response;
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 }

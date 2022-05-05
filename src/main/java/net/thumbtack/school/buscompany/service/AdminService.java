@@ -52,7 +52,7 @@ public class AdminService extends ServiceBase{
         );
     }
 
-    public UpdateUserProfileDtoResponse updateAdminProfile(String cookieValue, UpdateAdminProfileDtoRequest request) {
+    public ResponseEntity<UpdateUserProfileDtoResponse> updateAdminProfile(String cookieValue, UpdateAdminProfileDtoRequest request) {
         Admin admin = getAdmin(cookieValue);
 
         String oldPassword = request.getOldPassword();
@@ -70,10 +70,12 @@ public class AdminService extends ServiceBase{
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " just updated his profile");
         userDao.updateUser(admin);
 
-        return AdminMapstructMapper.INSTANCE.toUpdateDto(admin);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(AdminMapstructMapper.INSTANCE.toUpdateDto(admin));
     }
 
-    public RegisterBusDtoResponse registerBus(String cookieValue, RegisterBusDtoRequest request) {
+    public ResponseEntity<RegisterBusDtoResponse> registerBus(String cookieValue, RegisterBusDtoRequest request) {
         Admin admin = getAdmin(cookieValue);
 
         Bus bus = BusMapstructMapper.INSTANCE.fromRegisterDto(request);
@@ -81,10 +83,12 @@ public class AdminService extends ServiceBase{
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " registered new bus (" + bus.getBusName() + ")");
         adminDao.registerBus(bus);
 
-        return BusMapstructMapper.INSTANCE.toRegisterDto(bus);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(BusMapstructMapper.INSTANCE.toRegisterDto(bus));
     }
 
-    public GetAllBusesDtoResponse getAllBuses(String cookieValue) {
+    public ResponseEntity<GetAllBusesDtoResponse> getAllBuses(String cookieValue) {
         Admin admin = getAdmin(cookieValue);
 
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " got all buses info's");
@@ -95,10 +99,12 @@ public class AdminService extends ServiceBase{
             responseBusList.add(BusMapstructMapper.INSTANCE.toDtoResponse(bus));
         }
 
-        return  new GetAllBusesDtoResponse(responseBusList);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetAllBusesDtoResponse(responseBusList));
     }
 
-    public GetAllClientsDtoResponse getAllClients(String cookieValue) {
+    public ResponseEntity<GetAllClientsDtoResponse> getAllClients(String cookieValue) {
         Admin admin = getAdmin(cookieValue);
 
         List<Client> clients = adminDao.getAllClients();
@@ -109,10 +115,12 @@ public class AdminService extends ServiceBase{
         }
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " got all clients info`s");
 
-        return new GetAllClientsDtoResponse(clientProfiles);
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new GetAllClientsDtoResponse(clientProfiles));
     }
 
-    public RegisterTripDtoResponse addTrip(String cookieValue, RegisterTripDtoRequest request) {
+    public ResponseEntity<RegisterTripDtoResponse> addTrip(String cookieValue, RegisterTripDtoRequest request) {
         Admin admin = getAdmin(cookieValue);
 
         if(!adminDao.containsBus(request.getBusName())){
@@ -164,10 +172,12 @@ public class AdminService extends ServiceBase{
 
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " added new trip from "
                 + trip.getFromStation() + " to " + trip.getToStation());
-        return response;
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public UpdateTripDtoResponse updateTrip(String cookieValue, String tripId, UpdateTripDtoRequest request) {
+    public ResponseEntity<UpdateTripDtoResponse> updateTrip(String cookieValue, String tripId, UpdateTripDtoRequest request) {
         int idTrip;
 
         try {
@@ -242,10 +252,12 @@ public class AdminService extends ServiceBase{
                 + trip.getFromStation() + " to " + trip.getToStation());
         adminDao.updateTrip(trip);
 
-        return response;
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public DeleteTripDtoResponse deleteTrip(String cookieValue, String tripId) {
+    public ResponseEntity<DeleteTripDtoResponse> deleteTrip(String cookieValue, String tripId) {
         int idTrip;
 
         try {
@@ -267,10 +279,12 @@ public class AdminService extends ServiceBase{
                 + trip.getFromStation() + " to " + trip.getToStation());
         adminDao.deleteTrip(trip);
 
-        return new DeleteTripDtoResponse();
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new DeleteTripDtoResponse());
     }
 
-     public GetTripProfileDtoResponse getTripInfo(String cookieValue, String tripId) {
+     public ResponseEntity<GetTripProfileDtoResponse> getTripInfo(String cookieValue, String tripId) {
          int idTrip;
 
          try {
@@ -304,10 +318,12 @@ public class AdminService extends ServiceBase{
 
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " got info of the trip from "
                 + trip.getFromStation() + " to " + trip.getToStation());
-        return response;
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 
-    public ApproveTripDtoResponse approveTrip(String cookieValue, String tripId) {
+    public ResponseEntity<ApproveTripDtoResponse> approveTrip(String cookieValue, String tripId) {
         int idTrip;
 
         try {
@@ -343,6 +359,8 @@ public class AdminService extends ServiceBase{
 
         LOGGER.info("User-" + admin.getUserType() + " " + admin.getLogin() + " approved trip from "
                 + trip.getFromStation() + " to " + trip.getToStation());
-        return response;
+
+        ResponseCookie cookie = createJavaSessionIdCookie(cookieValue);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(response);
     }
 }
