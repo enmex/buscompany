@@ -183,12 +183,10 @@ public class ClientService extends ServiceBase{
             clientDao.insertPassenger(order, passenger);
         }
 
-        Place place = new Place();
-        place.setPlaceNumber(request.getPlace());
-        place.setOrder(order);
-        place.setTripId(order.getTrip().getId());
+        Place place = new Place(
+                order.getTrip().getId(), order, passenger, request.getPlace()
+        );
 
-        place.setPassenger(passenger);
         clientDao.changePlace(place);
 
         String ticket = "Билет " + request.getOrderId() + "_" + request.getPlace();

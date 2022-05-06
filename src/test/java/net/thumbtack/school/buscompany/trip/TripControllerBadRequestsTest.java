@@ -27,10 +27,10 @@ public class TripControllerBadRequestsTest extends BaseTest {
 
         RegisterTripDtoRequest requestEmpty = new RegisterTripDtoRequest();
 
-        ScheduleDtoRequest schedule = new ScheduleDtoRequest();
-        schedule.setFromDate("2022-09-01");
-        schedule.setToDate("2022-09-09");
-        schedule.setPeriod("daily");
+        ScheduleDtoRequest schedule = new ScheduleDtoRequest(
+                "2022-09-01", "2022-09-09", "daily"
+        );
+
         RegisterTripDtoRequest requestInvalid = new RegisterTripDtoRequest();
         requestInvalid.setSchedule(schedule);
         requestInvalid.setDuration("abc");
@@ -61,19 +61,14 @@ public class TripControllerBadRequestsTest extends BaseTest {
     public void testBadScheduleAndDates() throws Exception {
         Cookie admin = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
 
-        ScheduleDtoRequest invalidRequest = new ScheduleDtoRequest();
-        invalidRequest.setToDate("2022-09-01");
-        invalidRequest.setFromDate("2022-08-01");
-        invalidRequest.setPeriod("dail");
+        ScheduleDtoRequest invalidRequest = new ScheduleDtoRequest(
+                "2022-08-01", "2022-09-01", "dail"
+        );
 
-        RegisterTripDtoRequest registerTripDtoRequest = new RegisterTripDtoRequest();
+        RegisterTripDtoRequest registerTripDtoRequest = new RegisterTripDtoRequest(
+                "Автобус", "Омск", "Калачинск", "08:00", "03:00", 500
+        );
         registerTripDtoRequest.setSchedule(invalidRequest);
-        registerTripDtoRequest.setBusName("Автобус");
-        registerTripDtoRequest.setDuration("03:00");
-        registerTripDtoRequest.setStart("08:00");
-        registerTripDtoRequest.setFromStation("Омск");
-        registerTripDtoRequest.setToStation("Калачинск");
-        registerTripDtoRequest.setPrice(500);
 
         assertInvalidRequest(httpPost("/api/trips", admin, gson.toJson(registerTripDtoRequest)), 1);
 
@@ -102,19 +97,14 @@ public class TripControllerBadRequestsTest extends BaseTest {
         Cookie admin = registerAdmin().getResponse().getCookie(BusCompanyCookies.JAVASESSIONID);
         int tripId = getContent(registerScheduleTrip(admin), RegisterTripDtoResponse.class).getTripId();
 
-        ScheduleDtoRequest invalidRequest = new ScheduleDtoRequest();
-        invalidRequest.setToDate("2022-09-01");
-        invalidRequest.setFromDate("2022-08-01");
-        invalidRequest.setPeriod("dail");
+        ScheduleDtoRequest invalidRequest = new ScheduleDtoRequest(
+                "2022-08-01", "2022-09-01", "dail"
+        );
 
-        UpdateTripDtoRequest updateTripDtoRequest = new UpdateTripDtoRequest();
+        UpdateTripDtoRequest updateTripDtoRequest = new UpdateTripDtoRequest(
+                "Автобус", "Омск", "Калачинск", "08:00", "03:00", 500
+        );
         updateTripDtoRequest.setSchedule(invalidRequest);
-        updateTripDtoRequest.setBusName("Автобус");
-        updateTripDtoRequest.setDuration("03:00");
-        updateTripDtoRequest.setStart("08:00");
-        updateTripDtoRequest.setFromStation("Омск");
-        updateTripDtoRequest.setToStation("Калачинск");
-        updateTripDtoRequest.setPrice(500);
 
         assertInvalidRequest(httpPut("/api/trips/" + tripId, admin, gson.toJson(updateTripDtoRequest)), 1);
 
